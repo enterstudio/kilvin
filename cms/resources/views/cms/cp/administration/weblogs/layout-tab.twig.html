@@ -1,0 +1,58 @@
+<div id="publish_block_{{tab_handle}}" class="publish-tab-block" style="display: none; padding: 0px; margin: 0px;">
+	<table border="0" cellpadding="0" cellspacing="0" style="width:100%">
+		<tbody>
+			<tr>
+				<td>
+					<div class="publish-box field-rows">
+						{% for field in tab_fields %}
+							<div class="publishRows " id="tab_{{tab_handle}}_field_{{field.field_name}}">
+								<input type="hidden" class="hidden-field" name="fields[{{tab_handle}}][]" value="{{field.field_name}}">
+								<div class="littlePadding">
+									<h5 class="field-label">{{field.field_label}}</h5>
+								</div>
+								<div class="littlePadding">
+									<strong>{{__('admin.Field Type')}}:</strong>
+									<span class="field-type">{{field.field_type}}</span>
+								</div>
+								<div class="littleMorePadding ">
+									<a class="button smaller js-field-move-up" data-tab="{{tab_handle}}" data-field="{{field.field_name}}">
+										▲ {{__('admin.Move Up')}}
+									</a>
+									 &nbsp;
+									<a class="button smaller js-field-move-down" data-tab="{{tab_handle}}" data-field="{{field.field_name}}">
+										▼ {{__('admin.Move Down')}}
+									</a>
+									 &nbsp;
+									<a class="button smaller delete js-field-remove" data-tab="{{tab_handle}}" data-field="{{field.field_name}}">
+										× {{__('admin.Remove')}}
+									</a>
+								</div>
+							</div>
+						{% endfor %}
+
+						<!-- Add Field -->
+						<div class="add-field">
+							<div class="littlePadding">
+								<h5><em>{{__('admin.Add Field')}}</em></h5>
+							</div>
+							<div class="">
+								<select class="js-add-field" data-tab="{{tab_handle}}">
+									<option value="">{{__('admin.Choose Field')}}</option>
+									{% for field in fields %}
+										<option
+											value="{{field.field_name}}"
+											data-type="{{field.field_type}}"
+											{% if field.used %}disabled="disabled"{% endif %}
+										>
+											{{field.field_label}} ({{field.field_type}})
+										</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

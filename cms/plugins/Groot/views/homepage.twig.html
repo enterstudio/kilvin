@@ -1,0 +1,18 @@
+
+
+{% extends "cp._page" %}
+
+{% set page_name = __('cp.homepage') %}
+
+{% block mainContent %}
+
+	{{ header | raw }}
+
+	<ul>
+		{% for row in Plugins.Element('Groot').get() %}
+			<li><strong>{{ row.field_name }}:</strong> {{ row.field_value }}</li>
+		{% endfor %}
+	</ul>
+
+
+{% endblock %}

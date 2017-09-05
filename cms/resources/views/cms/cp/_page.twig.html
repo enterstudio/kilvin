@@ -1,0 +1,108 @@
+<html>
+<head>
+<title>{{page_name}} - {{site_name}} | {{cms.name}}</title>
+
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta http-equiv="expires" content="-1">
+<meta http-equiv="expires" content="Mon, 01 Jan 1970 23:59:59 GMT">
+<meta http-equiv="pragma" content="no-cache">
+
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+
+<script type="text/javascript">
+    function dropMenuSwitch(e, visible)
+    {
+        e.preventDefault();
+        e.stopPropagation();
+
+        $('.siteDropMenu, .tab-drop-menu').css('display', 'none').css('visibility', 'hidden');
+
+        var el = $(e.target).parent().children('.tabDropMenu').first();
+
+        if (visible || el.css('visibility') == 'visible')
+        {
+            el.css('visibility', 'hidden');
+            el.css('display', 'none');
+        }
+        else
+        {
+            el.css('visibility', 'visible');
+            el.css('display', 'block');
+        }
+    }
+
+    function siteDropdown(e, visible)
+    {
+        e.preventDefault();
+        e.stopPropagation();
+
+        $('.tabDropMenu, .tab-drop-menu').css('display', 'none').css('visibility', 'hidden');
+
+        var el = $(e.target).parent().parent().children('.siteDropMenu').first();
+
+        if (visible || el.css('visibility') == 'visible')
+        {
+            el.css('visibility', 'hidden');
+            el.css('display', 'none');
+        }
+        else
+        {
+            el.css('visibility', 'visible');
+            el.css('display', 'block');
+        }
+    }
+
+    $(document).click(function(){
+      $('.siteDropMenu, .tabDropMenu, .tab-drop-menu').css('display', 'none').css('visibility', 'hidden');
+    });
+
+</script>
+
+{% block headerJavascript %}
+
+{% endblock headerJavascript %}
+
+</head>
+
+<link rel="stylesheet" type="text/css" href="{{theme.css_url}}">
+
+<body>
+
+	{% include 'cp._header' %}
+
+	{% include 'cp._breadcrumbs' %}
+
+
+	<div class="main-content">
+		{% block mainContent %}
+			<p>Seems to be missing some content, bucko.</p>
+		{% endblock %}
+	</div>
+
+
+	<div class="copyright">
+		<img src="https://kilvin.app/themes/cp_global_images/kilvin-icon.png" border="0" width="30" height="30" alt="Kilvin CMS Logo">
+		<br>
+		<a href="https://arliden.com/">{{cms.name}} {{cms.version}}</a> • Copyright © 2017 Arliden, LLC
+		<br>
+		Page created in {{page_creation_time}} seconds • {{total_queries}} SQL queries used
+	</div>
+
+{% block footerJavascript %}
+
+{% endblock footerJavascript %}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Hide success message after a couple seconds
+        if ($('.success-message').length) {
+            setTimeout(function(){
+                $('.success-message').slideUp(600);
+            }, 3000);
+        }
+    });
+</script>
+
+</body>
+</html>
+

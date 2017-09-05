@@ -1,0 +1,35 @@
+<?php
+
+$ignore = array(
+					'a',
+					'about',
+					'an',
+					'and',
+					'are',
+					'as',
+					'at',
+					'be',
+					'by',
+					'but',
+					'from',
+					'how',
+					'i',
+					'in',
+					'is',
+					'it',
+					'of',
+					'on',
+					'or',
+					'that',
+					'the',
+					'this',
+					'to',
+					'was',
+					'we',
+					'what',
+					'when',
+					'where',
+					'which',
+					'with'	// no comma after last item			
+			);
+?>

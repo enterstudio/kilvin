@@ -1,0 +1,23 @@
+
+{% extends "_page" %}
+
+{% block mainContent %}
+
+    <h1>Kilvin CMS Installed!</h1>
+
+    <div class="border red">
+        <p>
+            <strong>Important:</strong> Delete the file called <strong>install.php</strong> from your server. Leaving it on your server presents a security risk.
+        </p>
+    </div>
+
+    <div class="mild-indent">
+
+        <h3>- <a href="./admin.php">Control Panel</a></h3>
+
+        <h3>- <a href='{{site_url}}'>View Site</a></h3>
+
+        <h2 class="center">Enjoy Kilvin CMS!</h2>
+    </div>
+
+{% endblock %}
