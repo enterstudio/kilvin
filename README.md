@@ -33,10 +33,7 @@ There is now a demo for developers wishing to preview Kilvin CMS. The database h
 
  - Insure you have a server meeting the above requirements. [Laravel Homestead](https://laravel.com/docs/5.4/homestead) is a superb development environment for Kilvin CMS.
  - Clone this GitHub repo onto your server.
- - Run the following [Composer](https://getcomposer.org) command to install Kilvin's code dependencies: `composer install --no-interaction --prefer-dist --optimize-autoloader`.
- - For the time being, run these commands manually:
-   - `cp .env.example .env`
-   - `php cms/artisan key:generate`
+ - In your terminal, run the following [Composer](https://getcomposer.org) command in your cloned directory to install Kilvin's dependencies: `composer create-project --prefer-dist`.
  - Permissions. Insure that the following files and directories are writeable on your server. Homestead is set up to allow this automatically:
    - .env
    - cms/storage
