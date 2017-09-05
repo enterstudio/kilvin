@@ -9,6 +9,15 @@
 Kilvin CMS is a content management system built on top of the [Laravel framework](https://laravel.com). The project is currently in a development state and is not ready for use in production. We do not suggest using this for live websites at this time since major architectural changes are still possible, which could break existing functionality. This means you, Mark.
 
 
+## Demo
+
+There is now a demo for developers wishing to preview Kilvin CMS. The database has been locked down so no form submissions will work.
+
+- [Demo Control Panel](https://demo.kilvincms.com/admin.php)
+ - Email Address: `demo@kilvincms.com`
+ - Password: `suprasecretpassword`
+
+
 ## Installing Kilvin CMS
 
 ### Server Requirements
@@ -24,10 +33,7 @@ Kilvin CMS is a content management system built on top of the [Laravel framework
 
  - Insure you have a server meeting the above requirements. [Laravel Homestead](https://laravel.com/docs/5.4/homestead) is a superb development environment for Kilvin CMS.
  - Clone this GitHub repo onto your server.
- - Run the following [Composer](https://getcomposer.org) command to install Kilvin's code dependencies: `composer install --no-interaction --prefer-dist --optimize-autoloader`.
- - For the time being, run these commands manually:
-   - `cp .env.example .env`
-   - `php cms/artisan key:generate`
+ - In your terminal, run the following [Composer](https://getcomposer.org) command in your cloned directory to install Kilvin's dependencies: `composer create-project --prefer-dist`.
  - Permissions. Insure that the following files and directories are writeable on your server. Homestead is set up to allow this automatically:
    - .env
    - cms/storage
