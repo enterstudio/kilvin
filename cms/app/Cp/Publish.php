@@ -1445,7 +1445,7 @@ EOT;
         $meta .= Cp::heading(__('publish.entry_date'), 5);
 
         $cal_img =
-            '<a href="#" class="toggle-element" data-toggle="calendar_entry_date">
+            '<a href="#" class="toggle-element" data-toggle="calendar_entry_date|calendar_expiration_date">
                 <span style="display:inline-block; height:25px; width:25px; vertical-align:top;">
                     '.Cp::calendarImage().'
                 </span>
@@ -1505,7 +1505,7 @@ EOT;
         $meta .= Cp::heading(__('publish.expiration_date'), 5);
 
         $cal_img =
-            '<a href="#" class="toggle-element" data-toggle="calendar_expiration_date">
+            '<a href="#" class="toggle-element" data-toggle="calendar_entry_date|calendar_expiration_date">
                 <span style="display:inline-block; height:25px; width:25px; vertical-align:top;">
                     '.Cp::calendarImage().'
                 </span>
