@@ -52,10 +52,13 @@ class CreateCmsTables extends Migration
         });
 
 
-        // Throttle
+        // Cache
         // - file is default, database is an option, Redis would be Grrrrrreat!
+        // - MySQL 5.7 will allow a full string index length but anything
+        // under that version will have a problem, so we limit the key length
+        // Honestly, 191 chars SHOULD be plenty.
         Schema::create('cache', function ($table) {
-            $table->string('key')->unique();
+            $table->string('key', 191)->unique();
             $table->text('value');
             $table->integer('expiration');
         });
