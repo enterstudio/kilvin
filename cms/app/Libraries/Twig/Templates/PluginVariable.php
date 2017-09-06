@@ -66,7 +66,7 @@ class PluginVariable
                 throw new \Twig_Error(sprintf('The %s Plugin does not exist or is not installed.', $plugin_name));
             }
 
-            $class = '\Kilvin\Plugins\\'.$plugin->plugin_name.'\\Templates\\Elements\\'.$element;
+            $class = $plugin->details->namespace.'Templates\\Elements\\'.$element;
 
             if ( ! class_exists($class)) {
                 throw new \Twig_Error(sprintf('The %s Plugin does not have an Element named %s.', $plugin->plugin_name, $element));
@@ -77,13 +77,7 @@ class PluginVariable
 
 
         foreach(Plugins::list() as $plugin) {
-            $class = '\Kilvin\Plugins\\'.$plugin->plugin_name.'\\Templates\\Elements\\'.$element;
-
-            if (class_exists($class)) {
-                return $class;
-            }
-
-            $class = '\\'.$plugin->plugin_name.'\\Templates\\Elements\\'.$element;
+            $class = $plugin->details->namespace.'Templates\\Elements\\'.$element;
 
             if (class_exists($class)) {
                 return $class;

@@ -19,6 +19,7 @@ class Entries extends BaseModel implements \IteratorAggregate
 
     /**
      * The "booting" method of the model.
+     * - Adds default scopes for Element
      *
      * @return void
      */
