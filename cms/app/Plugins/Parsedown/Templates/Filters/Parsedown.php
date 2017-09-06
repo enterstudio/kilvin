@@ -2,7 +2,7 @@
 
 namespace Kilvin\Plugins\Parsedown\Templates\Filters;
 
-use Kilvin\Plugins\Base\Filter;
+use Kilvin\Plugins\Base\TemplateFilter;
 use Illuminate\Http\Request;
 
 /**
@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
  * @author     Paul Burdick <paul@reedmaniac.com>
  */
 
-class Parsedown extends Filter
+class Parsedown extends TemplateFilter
 {
 	private $request;
 

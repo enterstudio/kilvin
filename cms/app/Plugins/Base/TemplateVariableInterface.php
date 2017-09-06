@@ -2,12 +2,12 @@
 
 namespace Kilvin\Plugins\Base;
 
-interface FilterInterface
+interface TemplateVariableInterface
 {
     // --------------------------------------------------------------------
 
     /**
-    * Name of the filter - one word, lowercased
+    * Name of the variable - one word, lowercased, underscores allowed
     *
     * @return string
     */
@@ -16,10 +16,9 @@ interface FilterInterface
     // --------------------------------------------------------------------
 
     /**
-    * Run the Filter Request
+    * Output the Variable
     *
-    * @param string
-    * @return string
+    * @return string|object|array
     */
-    public function filter($str);
+    public function run();
 }

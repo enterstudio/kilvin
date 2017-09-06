@@ -2,7 +2,7 @@
 
 namespace Groot\Templates\Filters;
 
-use Kilvin\Plugins\Base\Filter;
+use Kilvin\Plugins\Base\TemplateFilter;
 use Illuminate\Http\Request;
 
 /**
@@ -18,7 +18,7 @@ use Illuminate\Http\Request;
  * @author     Paul Burdick <paul@reedmaniac.com>
  */
 
-class IAmGroot extends Filter
+class IAmGroot extends TemplateFilter
 {
 	private $request;
 

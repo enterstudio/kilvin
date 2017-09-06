@@ -95,8 +95,11 @@ class Filters extends Loader
         $full_class  = $plugin_namespace.$class;
 
         if (class_exists($full_class)) {
-            $filter_name = app($full_class)->name();
-            return [$filter_name => ['callback' => $full_class.'@run']];
+            $object = app($full_class);
+            $name = $object->name();
+            $options = $object->options();
+            $options['callback'] = $full_class.'@run';
+            return [$name => $options];
         }
 
         return false;

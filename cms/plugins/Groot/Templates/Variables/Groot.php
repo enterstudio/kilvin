@@ -3,9 +3,9 @@
 namespace Groot\Templates\Variables;
 
 use Illuminate\Http\Request;
-use Kilvin\Plugins\Base\Variable;
+use Kilvin\Plugins\Base\TemplateVariable;
 
-class Groot extends Variable
+class Groot extends TemplateVariable
 {
 	private $request;
 

@@ -2,7 +2,7 @@
 
 namespace Kilvin\Plugins\Parsedown\Templates\Functions;
 
-use Kilvin\Plugins\Base\Filter;
+use Kilvin\Plugins\Base\TemplateFunction;
 use Illuminate\Http\Request;
 
 /**
@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
  * @author     Paul Burdick <paul@reedmaniac.com>
  */
 
-class Markdown extends Filter
+class Markdown extends TemplateFunction
 {
 	private $request;
 
@@ -33,7 +33,7 @@ class Markdown extends Filter
 	// ----------------------------------------------------
 
 	/**
-     * Name of the Filter
+     * Name of the Function
      *
      * @return string
      */
@@ -45,7 +45,7 @@ class Markdown extends Filter
 	// ----------------------------------------------------
 
 	/**
-     * Perform the Filtering
+     * Run the Function
      *
      * @return string
      */

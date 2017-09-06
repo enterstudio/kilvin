@@ -159,10 +159,14 @@ class PluginVariable
             return $plugin_name == $item->plugin_name;
         });
 
-        $class = '\Kilvin\Plugins\\'.$plugin->plugin_name.'\\Tags';
+        if ($plugin === null) {
+            throw new \Twig_Error(sprintf('The %s Plugin does not exist or is not installed.', $plugin_name));
+        }
+
+        $class = $plugin->details->namespace.'Templates\\Tags';
 
         if ( ! class_exists($class)) {
-            throw new \Twig_Error(sprintf('The %s Plugin does not exist or is not installed.', $plugin->plugin_name));
+            throw new \Twig_Error(sprintf('The %s Plugin does not exist or is not installed.', $plugin_name));
         }
 
         return new $class;

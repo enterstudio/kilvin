@@ -2,19 +2,18 @@
 
 namespace Kilvin\Plugins\Parsedown\Templates\Filters;
 
-use Kilvin\Plugins\Base\Filter;
+use Kilvin\Plugins\Base\TemplateFilter;
 use Illuminate\Http\Request;
 
 /**
  * Markdown filter using Parsedown
- *
  *
  * @category   Plugin
  * @package    Parsedown
  * @author     Paul Burdick <paul@reedmaniac.com>
  */
 
-class Markdown extends Filter
+class Markdown extends TemplateFilter
 {
 	private $request;
 

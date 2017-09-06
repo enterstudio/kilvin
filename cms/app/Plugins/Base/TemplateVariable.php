@@ -2,7 +2,7 @@
 
 namespace Kilvin\Plugins\Base;
 
-abstract class Variable implements VariableInterface
+abstract class TemplateVariable implements TemplateVariableInterface
 {
     // --------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ abstract class Variable implements VariableInterface
     *
     * @return string|object|array
     */
-    public function variable()
+    public function run()
     {
         return null;
     }
