@@ -8,5 +8,5 @@ use Groot\Models\Groot as BaseModel;
 
 class Groot extends BaseModel implements \IteratorAggregate
 {
-	use TemplateElement;
+    use TemplateElement;
 }

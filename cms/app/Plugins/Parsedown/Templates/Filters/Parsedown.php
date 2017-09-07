@@ -16,42 +16,42 @@ use Illuminate\Http\Request;
 
 class Parsedown extends TemplateFilter
 {
-	private $request;
+    private $request;
 
-	// ----------------------------------------------------
+    // ----------------------------------------------------
 
-	/**
+    /**
      * Constructor
      *
      * @param  \Illuminate\Http\Request  $request
      * @return void
      */
-	public function __construct(Request $request)
-	{
-		$this->request = $request;
-	}
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
 
-	// ----------------------------------------------------
+    // ----------------------------------------------------
 
-	/**
+    /**
      * Name of the Filter
      *
      * @return string
      */
-	public function name()
-	{
-		return 'parsedown';
-	}
+    public function name()
+    {
+        return 'parsedown';
+    }
 
-	// ----------------------------------------------------
+    // ----------------------------------------------------
 
-	/**
+    /**
      * Perform the Filtering
      *
      * @return string
      */
-	public function run($str)
-	{
-		return parsedown($str);
-	}
+    public function run($str)
+    {
+        return parsedown($str);
+    }
 }

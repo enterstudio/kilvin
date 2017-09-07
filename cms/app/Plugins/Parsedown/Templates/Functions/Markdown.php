@@ -15,42 +15,42 @@ use Illuminate\Http\Request;
 
 class Markdown extends TemplateFunction
 {
-	private $request;
+    private $request;
 
-	// ----------------------------------------------------
+    // ----------------------------------------------------
 
-	/**
+    /**
      * Constructor
      *
      * @param  \Illuminate\Http\Request  $request
      * @return void
      */
-	public function __construct(Request $request)
-	{
-		$this->request = $request;
-	}
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
 
-	// ----------------------------------------------------
+    // ----------------------------------------------------
 
-	/**
+    /**
      * Name of the Function
      *
      * @return string
      */
-	public function name()
-	{
-		return 'markdown';
-	}
+    public function name()
+    {
+        return 'markdown';
+    }
 
-	// ----------------------------------------------------
+    // ----------------------------------------------------
 
-	/**
+    /**
      * Run the Function
      *
      * @return string
      */
-	public function run($str)
-	{
-		return parsedown($str);
-	}
+    public function run($str)
+    {
+        return parsedown($str);
+    }
 }

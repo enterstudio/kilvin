@@ -20,42 +20,42 @@ use Illuminate\Http\Request;
 
 class IAmGroot extends TemplateFilter
 {
-	private $request;
+    private $request;
 
-	// ----------------------------------------------------
+    // ----------------------------------------------------
 
-	/**
+    /**
      * Constructor
      *
      * @param  \Illuminate\Http\Request  $request
      * @return void
      */
-	public function __construct(Request $request)
-	{
-		$this->request = $request;
-	}
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
 
-	// ----------------------------------------------------
+    // ----------------------------------------------------
 
-	/**
+    /**
      * Name of the Filter
      *
      * @return string
      */
-	public function name()
-	{
-		return 'iamgroot';
-	}
+    public function name()
+    {
+        return 'iamgroot';
+    }
 
-	// ----------------------------------------------------
+    // ----------------------------------------------------
 
-	/**
+    /**
      * Perform the Filtering
      *
      * @return string
      */
-	public function run($str)
-	{
-		return preg_replace('/[\w\s]+([\.;\–\!]\s*)/', 'I am Groot$1', $str);
-	}
+    public function run($str)
+    {
+        return preg_replace('/[\w\s]+([\.;\–\!]\s*)/', 'I am Groot$1', $str);
+    }
 }
