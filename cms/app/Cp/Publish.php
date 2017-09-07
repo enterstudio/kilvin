@@ -153,7 +153,6 @@ class Publish
         $sticky                     = '';
         $author_id                  = '';
         $version_id                 = Request::input('version_id');
-        $version_num                = Request::input('version_num');
         $weblog_id                  = Request::input('weblog_id');
         $entry_id                   = Request::input('entry_id');
         $which                      = 'new';
@@ -304,12 +303,9 @@ class Publish
 
         $show_revision_cluster = ($enable_versioning == 'y') ? 'y' : 'n';
 
-        if ($which == 'new')
-        {
-            $versioning_enabled = ($enable_versioning == 'y') ? 'y' : 'n';
-        }
-        else
-        {
+        $versioning_enabled = ($enable_versioning == 'y') ? 'y' : 'n';
+
+        if ($submission_error) {
             $versioning_enabled = (Request::input('versioning_enabled')) ? 'y' : 'n';
         }
 
@@ -595,7 +591,7 @@ EOT;
             $r .= '<div id="publish_block_revisions" class="publish-tab-block" style="display: none; padding:0; margin:0;">';
             $r .= PHP_EOL.'<div class="publish-box">';
 
-            $r .= $this->publishFormVersioningBlock($entry_id, $versioning_enabled);
+            $r .= $this->publishFormVersioningBlock($version_id, $entry_id, $versioning_enabled);
 
             $r .= '</div>'.PHP_EOL;
             $r .= '</div>'.PHP_EOL;
@@ -639,11 +635,12 @@ EOT;
     /**
     * Entry Versioning Block
     *
+    * @param integer $version_id
     * @param integer $entry_id
     * @param string $versioning_enabled
     * @return string
     */
-    private function publishFormVersioningBlock($entry_id, $versioning_enabled)
+    private function publishFormVersioningBlock($version_id, $entry_id, $versioning_enabled)
     {
         $r  = PHP_EOL."<table class='clusterBox' border='0' cellpadding='0' cellspacing='0' style='width:99%'><tr>";
         $r .= PHP_EOL.'<td class="publishItemWrapper">'.BR;
@@ -673,9 +670,10 @@ EOT;
 
                 $i = 0;
                 $j = $revquery->count();
+
                 foreach($revquery as $row)
                 {
-                    if (($row->version_id == $version_id) or ($which == 'edit' and $i == 0)) {
+                    if ($row->version_id == $version_id) {
                         $revlink = Cp::quickDiv('highlight', __('publish.current_rev'));
                     } else {
                         $warning = "onclick=\"if(!confirm('".__('publish.revision_warning')."')) return false;\"";
@@ -683,20 +681,18 @@ EOT;
                         $revlink = Cp::anchor(
                             BASE.'?C=edit'.AMP.
                                 'M=editEntry'.AMP.
-                                'weblog_id='.$weblog_id.AMP.
                                 'entry_id='.$entry_id.AMP.
-                                'version_id='.$row->version_id.AMP.
-                                'version_num='.$j,
+                                'version_id='.$row->version_id,
                                 '<b>'.__('publish.load_revision').'</b>',
                                 $warning);
                     }
 
-                    $r .= Cp::tableRow(array(
-                        array('text' => '<b>'.__('publish.revision').' '.$j.'</b>'),
-                        array('text' => Localize::createHumanReadableDateTime($row->version_date)),
-                        array('text' => $row->screen_name),
-                        array('text' => $revlink)
-                        )
+                    $r .= Cp::tableRow([
+                        ['text' => '<b>'.__('publish.revision').' '.$j.'</b>'],
+                        ['text' => Localize::createHumanReadableDateTime($row->version_date)],
+                        ['text' => $row->screen_name],
+                        ['text' => $revlink]
+                    ]
                 );
 
                     $j--;
