@@ -1,6 +1,6 @@
 <?php
 
-namespace Kilvin\Plugins\Base;
+namespace Kilvin\Support\Plugins;
 
 use Illuminate\Support\Str;
 use Illuminate\Database\Migrations\Migrator;

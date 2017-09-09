@@ -5,7 +5,7 @@ namespace Groot;
 use Cp;
 use DB;
 use Request;
-use Kilvin\Plugins\Base\ControlPanel as PluginControlPanel;
+use Kilvin\Support\Plugins\ControlPanel as PluginControlPanel;
 
 class ControlPanel extends PluginControlPanel
 {

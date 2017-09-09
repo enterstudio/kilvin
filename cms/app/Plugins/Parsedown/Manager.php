@@ -4,7 +4,7 @@ namespace Kilvin\Plugins\Parsedown;
 
 use DB;
 use Schema;
-use Kilvin\Plugins\Base\Manager as BaseManager;
+use Kilvin\Support\Plugins\Manager as BaseManager;
 
 class Manager extends BaseManager
 {

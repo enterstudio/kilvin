@@ -9,8 +9,8 @@ use Request;
 use Plugins as PluginsFacade;
 use Kilvin\Core\Session;
 use Kilvin\Exceptions\CmsFailureException;
-use Kilvin\Plugins\Base\PluginMigrator;
-use Kilvin\Plugins\Base\PluginMigrationRepository;
+use Kilvin\Support\Plugins\PluginMigrator;
+use Kilvin\Support\Plugins\PluginMigrationRepository;
 use Illuminate\Database\Migrations\Migrator;
 
 class Plugins
@@ -58,10 +58,9 @@ class Plugins
     /**
     * Plugins Homepage
     *
-    * @param string $message
     * @return string
     */
-    public function homepage($message = '')
+    public function homepage()
     {
         if ( ! Session::access('can_access_plugins')) {
             return Cp::unauthorizedAccess();
@@ -146,8 +145,14 @@ class Plugins
 
         $r = '';
 
-        if ($message != '') {
-        	$r .= Cp::quickDiv('success-message', $message);
+        // -----------------------------------------
+        //  CP Message?
+        // -----------------------------------------
+
+        $cp_message = session()->pull('cp-message');
+
+        if (!empty($cp_message)) {
+            $r .= Cp::quickDiv('success-message', $cp_message);
         }
 
         $r .= Cp::table('tableBorderNoTop', '0', '0', '100%').
@@ -259,7 +264,7 @@ class Plugins
     * Load a Plugin's Control Panel class
     *
     * @param string $plugin
-    * @return \Kilvin\Plugins\Base\ControlPanelInterface
+    * @return \Kilvin\Support\Plugins\ControlPanelInterface
     */
     public function loadControlPanel($plugin)
     {
@@ -377,7 +382,12 @@ class Plugins
 
         $message = $line.$manager->name();
 
-        return $this->homepage($message);
+         session()->flash(
+            'cp-message',
+            $message
+        );
+
+         return redirect('?C=Plugins');
     }
 
     // --------------------------------------------------------------------

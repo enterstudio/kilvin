@@ -1,11 +1,11 @@
 <?php
 
-namespace Kilvin\Plugins\Base;
+namespace Kilvin\FieldTypes;
 
 use Cp;
 use Kilvin\Plugins\Weblogs\Models\Entry;
 use Illuminate\Database\Schema\Blueprint;
-use Kilvin\Plugins\Base\FieldType;
+use Kilvin\Support\Plugins\FieldType;
 
 class Textarea extends FieldType
 {

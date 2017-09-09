@@ -1,6 +1,6 @@
 <?php
 
-namespace Kilvin\Plugins\Base;
+namespace Kilvin\Support\Plugins;
 
 abstract class TemplateVariable implements TemplateVariableInterface
 {

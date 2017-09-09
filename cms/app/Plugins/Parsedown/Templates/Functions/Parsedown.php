@@ -2,7 +2,7 @@
 
 namespace Kilvin\Plugins\Parsedown\Templates\Functions;
 
-use Kilvin\Plugins\Base\TemplateFunction;
+use Kilvin\Support\Plugins\TemplateFunction;
 use Illuminate\Http\Request;
 
 /**

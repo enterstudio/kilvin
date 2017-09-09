@@ -3,7 +3,7 @@
 namespace Kilvin\Plugins\Members;
 
 use DB;
-use Kilvin\Plugins\Base\Manager as BaseManager;
+use Kilvin\Support\Plugins\Manager as BaseManager;
 
 class Manager extends BaseManager
 {

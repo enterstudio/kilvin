@@ -1,13 +1,13 @@
 <?php
 
-namespace Kilvin\Plugins\Base;
+namespace Kilvin\Support\Plugins;
 
-abstract class TemplateFunction implements TemplateFunctionInterface
+abstract class TemplateFilter implements TemplateFilterInterface
 {
     // --------------------------------------------------------------------
 
     /**
-    * Run the Function Request
+    * Run the Filter Request
     *
     * @param string
     * @return string
@@ -20,7 +20,7 @@ abstract class TemplateFunction implements TemplateFunctionInterface
     // --------------------------------------------------------------------
 
     /**
-    * Options for Function
+    * Options for Filter
     *
     * @return array
     */

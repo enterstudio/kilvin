@@ -2,7 +2,7 @@
 
 namespace Groot\Templates\Filters;
 
-use Kilvin\Plugins\Base\TemplateFilter;
+use Kilvin\Support\Plugins\TemplateFilter;
 use Illuminate\Http\Request;
 
 /**

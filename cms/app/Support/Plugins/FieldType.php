@@ -1,12 +1,12 @@
 <?php
 
-namespace Kilvin\Plugins\Base;
+namespace Kilvin\Support\Plugins;
 
 use Cp;
 use Kilvin\Plugins\Weblogs\Models\Entry;
 use Illuminate\Database\Schema\Blueprint;
 
-abstract class FieldType extends Migrator
+abstract class FieldType
 {
     protected $field;
     protected $language;
@@ -60,6 +60,7 @@ abstract class FieldType extends Migrator
      */
     public function name()
     {
+        // @todo - Translate!
         return 'Base FieldType';
     }
 

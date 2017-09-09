@@ -3,7 +3,7 @@
 namespace Groot\Templates\Variables;
 
 use Illuminate\Http\Request;
-use Kilvin\Plugins\Base\TemplateVariable;
+use Kilvin\Support\Plugins\TemplateVariable;
 
 class Groot extends TemplateVariable
 {
