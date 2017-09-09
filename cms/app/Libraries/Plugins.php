@@ -3,6 +3,7 @@
 namespace Kilvin\Libraries;
 
 use DB;
+use File;
 use Carbon\Carbon;
 use Kilvin\Core\Session;
 use Kilvin\Exceptions\CmsFailureException;
@@ -233,6 +234,116 @@ class Plugins
 
             app('translator')->addLines($prefixed, $locale, '*');
         }
+    }
+
+
+    // --------------------------------------------------------------------
+
+    /**
+    * FieldTypes
+    *
+    * @return array
+    */
+    public function fieldTypes()
+    {
+        $field_types = $this->getFieldTypesForCore();
+
+        $plugins = $this->list();
+        foreach($plugins as $plugin) {
+            $plugin_filters = $this->getFieldTypesForPlugin($plugin);
+            $field_types = array_merge($field_types, $plugin_filters);
+        }
+
+        return $field_types;
+    }
+
+    // ----------------------------------------------------
+
+    /**
+     * Get FieldTypes for the Core System
+     *
+     * @param object
+     * @return array
+     */
+    private function getFieldTypesForCore()
+    {
+        $field_types_directory = app_path('FieldTypes');
+
+        if (!File::isDirectory($field_types_directory)) {
+            return [];
+        }
+        $namespace = 'Kilvin\\FieldTypes\\';
+
+        $field_types = [];
+
+        foreach(File::files($field_types_directory) as $file_info) {
+            if (($field_type = $this->getFieldTypeDetails($namespace, $file_info))) {
+                $field_types = array_merge($field_types, $field_type);
+            }
+        }
+
+        return $field_types;
+    }
+
+    // ----------------------------------------------------
+
+    /**
+     * Get FieldTypes for a Plugin
+     *
+     * @param object
+     * @return array
+     */
+    private function getFieldTypesForPlugin($plugin)
+    {
+        $field_types_directory =
+            $plugin->details->path.
+            'Templates'.DIRECTORY_SEPARATOR.
+            'FieldTypes';
+
+        if (!File::isDirectory($field_types_directory)) {
+            return [];
+        }
+        $namespace = $plugin->details->namespace.'Templates\\FieldTypes\\';
+
+        $field_types = [];
+
+        foreach(File::files($field_types_directory) as $file_info) {
+            if (($field_type = $this->getFieldTypeDetails($namespace, $file_info))) {
+                $field_types = array_merge($field_types, $field_type);
+            }
+        }
+
+        return $field_types;
+    }
+
+    // ----------------------------------------------------
+
+    /**
+     * Get FieldType Details
+     *
+     * @param string
+     * @return array|boolean
+     */
+    private function getFieldTypeDetails($plugin_namespace, $file_info)
+    {
+        if (substr($file_info->getFilename(), -4) != '.php') {
+            return false;
+        }
+
+        $class = substr($file_info->getFilename(), 0, -4);
+        $full_class  = $plugin_namespace.$class;
+
+        if (class_exists($full_class)) {
+            $object = app($full_class);
+            $name = $object->name();
+
+            $info['class'] = $plugin_namespace.$class;
+            $info['path']  = $file_info->getPathname();
+
+            return [$name => $info];
+        }
+
+        return false;
     }
 
 }

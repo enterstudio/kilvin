@@ -10,59 +10,17 @@ use Kilvin\Support\Plugins\FieldType;
 class Textarea extends FieldType
 {
     protected $field;
-    protected $language;
 
     // ----------------------------------------------------
 
     /**
-     * Constructor
-     *
-     * Uses Laravel dependency injection, so put anything you want in the constructor attributes
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-
-    }
-
-    // ----------------------------------------------------
-
-    /**
-     * Set Field Details
-     *
-     * @param object
-     * @return void
-     */
-    public function setField($field)
-    {
-        $this->field = $field;
-    }
-
-    // ----------------------------------------------------
-
-    /**
-     * Set Language
-     *
-     * @param object
-     * @return void
-     */
-    public function setLanguage($language)
-    {
-        $this->language = $language;
-    }
-
-    // ----------------------------------------------------
-
-    /**
-     * Name of the Filter
+     * Name of the FieldType
      *
      * @return string
      */
     public function name()
     {
-        // @todo - Translate!
-        return 'Base FieldType';
+        return __('admin.Textarea');
     }
 
     // ----------------------------------------------------
@@ -90,12 +48,14 @@ class Textarea extends FieldType
      * That which is pushed out to the Template parser as final value
      *
      * @param string $field_name The name of the field
+     * @param string|null $value The value of the field
      * @param array $entry All of the incoming entry data
+     * @param string $source db/post
      * @return mixed Could be anything really, as long as Twig can use it
      */
-    public function storedValue($field_name, $entry, $source)
+    public function storedValue($field_name, $value, $entry, $source)
     {
-        return $entry['field_'.$field_name];
+        return $value;
     }
 
     // ----------------------------------------------------
@@ -105,12 +65,23 @@ class Textarea extends FieldType
      *
      * The HTML fields you wish to display in the Edit Field Form
      *
+     * @param array $settings The Settings for this field
      * @return string
      */
-    public function settingsFormFields($incoming = null)
+    public function settingsFormFields($settings = [])
     {
-        Cp::footerJavascript('');
-        return '';
+        return Cp::quickDiv(
+            'littlePadding',
+            Cp::input_text(
+                'textarea_num_rows',
+                $incoming['textarea_num_rows'],
+                '4',
+                '3',
+                'input',
+                '30px').
+            NBS.
+            __('admin.Textarea Rows')
+        );
     }
 
     // ----------------------------------------------------
@@ -125,7 +96,9 @@ class Textarea extends FieldType
      */
     public function settingsValidationRules($incoming = [])
     {
-        return [];
+        $rules['textarea_num_rows'] = 'required|number|max:100';
+
+        return $rules;
     }
 
     // ----------------------------------------------------
@@ -137,14 +110,24 @@ class Textarea extends FieldType
      * I'd suggest using views to build this, but who am I to tell you what's right?
      *
      * @param string $field_name The name of the field
+     * @param string|null $value The value of the field
      * @param array $entry All of the incoming entry data
      * @param string $source db/post
      * @return string
      */
-    public function publishFormHtml($field_name, $entry, $source)
+    public function publishFormHtml($field_name, $value, $entry, $source)
     {
         Cp::footerJavascript('');
-        return '';
+
+        $row = (!empty($field->textarea_num_rows)) ? ceil($field->textarea_num_rows) : 10;
+
+        return '<textarea
+            style="width:100%;"
+            id="'.$field_name.'"
+            name="'.$field_name.'"
+            rows="'.$rows.'"
+            class="textarea"
+        >'.escape_attribute($value).'</textarea>';
     }
 
     // ----------------------------------------------------
@@ -155,16 +138,17 @@ class Textarea extends FieldType
      * The validation rules performed on submission
      *
      * @param string $field_name The name of the field
+     * @param string|null $value The value of the field
      * @param array $entry All of the incoming entry data
      * @param string $source db/post
      * @return array
      */
-    public function publishFormValidation($field_name, $entry, $source)
+    public function publishFormValidation($field_name, $value, $entry, $source)
     {
         $rules = [];
 
         if ($this->fields->is_field_required == 'y') {
-            $rules[] = 'required';
+            $rules[$field_name] = 'required';
         }
 
         return $rules;
@@ -173,18 +157,18 @@ class Textarea extends FieldType
     // ----------------------------------------------------
 
     /**
-     * Store Value
+     * Template Output
      *
-     * What should be stored in the database column for this field
+     * What you output to the Template
      *
      * @param string $field_name The name of the field
+     * @param string|null $value The value of the field
      * @param array $entry All of the incoming entry data
-     * @param string $source db/post
      * @return mixed
      */
-    public function storedValue($field_name, $entry, $source)
+    public function templateOutput($field_name, $value, $entry)
     {
-        return $entry['field_'.$field_name];
+        return $value;
     }
 
     // -------------------------------------------------------------------------

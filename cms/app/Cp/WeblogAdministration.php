@@ -7,6 +7,7 @@ use DB;
 use Site;
 use Stats;
 use Schema;
+use Plugins;
 use Request;
 use Validator;
 use Carbon\Carbon;
@@ -4607,7 +4608,6 @@ EOT;
         }
 
         // Fetch the name of the field group
-
         $query = DB::table('field_groups')->select('group_name')->where('group_id', $group_id)->first();
 
         $r  = Cp::quickDiv('tableHeading', __('admin.field_group').':'.'&nbsp;'.$query->group_name);
@@ -4635,8 +4635,7 @@ EOT;
             )->get();
 
 
-        if ($query->count() == 0)
-        {
+        if ($query->count() == 0) {
             $r .= '<tr>'.PHP_EOL.
                   Cp::td('', '', 4).
                   '<b>'.__('admin.no_field_groups').'</br>'.
@@ -4644,12 +4643,15 @@ EOT;
                   '</tr>'.PHP_EOL;
         }
 
+        // FieldTypes!
+        $field_types = Plugins::fieldTypes();
+
+        dd($field_types);
+
         $i = 0;
 
-        if ($query->count() > 0)
-        {
-            foreach ($query as $row)
-            {
+        if ($query->count() > 0) {
+            foreach ($query as $row) {
 
                 $r .= '<tr>'.PHP_EOL;
 
@@ -4674,7 +4676,7 @@ EOT;
                 {
                     case 'text' :  $field_type = __('admin.text_input');
                         break;
-                    case 'textarea' :  $field_type = __('admin.textarea');
+                    case 'textarea' :  $field_type = __('admin.Textarea');
                         break;
                     case 'select' :  $field_type = __('admin.select_list');
                         break;
@@ -4742,6 +4744,9 @@ EOT;
             )
             ->first();
 
+        // FieldTypes!
+        $field_types = Plugins::fieldTypes();
+
         $data = [];
 
         $field_id             = $data['field_id'] = '';
@@ -4797,15 +4802,15 @@ EOT;
         	var id = $('select[name=field_type]').val();
 
             if (id == 'text') {
-            	$options = ['text_block', 'direction_available'];
+            	$options = ['text_block'];
             }
 
             if (id == 'textarea') {
-            	$options = ['textarea_block', 'direction_available'];
+            	$options = ['textarea_block'];
             }
 
             if (id == 'select') {
-            	$options = ['select_block', 'pre_populate', 'direction_available'];
+            	$options = ['select_block', 'pre_populate'];
             }
 
             if (id == 'date') {
@@ -4932,7 +4937,7 @@ EOT;
 
         $typemenu = "<select name='field_type' class='select' onchange='displayFieldTypeOptions();' >".PHP_EOL;
         $typemenu .= Cp::input_select_option('text',      __('admin.text_input'),  $sel_1)
-                    .Cp::input_select_option('textarea',  __('admin.textarea'),    $sel_2)
+                    .Cp::input_select_option('textarea',  __('admin.Textarea'),    $sel_2)
                     .Cp::input_select_option('select',    __('admin.select_list'), $sel_3)
                     .Cp::input_select_option('date',      __('admin.date_field'),  $sel_4);
         $typemenu .= Cp::input_select_footer();
@@ -5063,7 +5068,7 @@ EOT;
         }
 
         $z .= '<div id="textarea_block" class="field-option" style="display: '.$textarea_js.'; padding:0; margin:5px 0 0 0;">';
-        $z .= Cp::quickDiv('littlePadding', NBS.Cp::input_text('textarea_num_rows', $textarea_num_rows, '4', '3', 'input', '30px').NBS.__('admin.textarea_rows'));
+        $z .= Cp::quickDiv('littlePadding', NBS.Cp::input_text('textarea_num_rows', $textarea_num_rows, '4', '3', 'input', '30px').NBS.__('admin.Textarea Rows'));
         $z .= '</div>'.PHP_EOL;
 
         // ------------------------------------

@@ -89,10 +89,12 @@ abstract class FieldType
      * That which is pushed out to the Template parser as final value
      *
      * @param string $field_name The name of the field
+     * @param string|null $value The value of the field
      * @param array $entry All of the incoming entry data
+     * @param string $source db/post
      * @return mixed Could be anything really, as long as Twig can use it
      */
-    public function storedValue($field_name, $entry, $source)
+    public function storedValue($field_name, $value, $entry, $source)
     {
         return $entry['field_'.$field_name];
     }
@@ -104,9 +106,10 @@ abstract class FieldType
      *
      * The HTML fields you wish to display in the Edit Field Form
      *
+     * @param array $settings The Settings for this field
      * @return string
      */
-    public function settingsFormFields($incoming = null)
+    public function settingsFormFields($settings = [])
     {
         Cp::footerJavascript('');
         return '';
@@ -136,11 +139,12 @@ abstract class FieldType
      * I'd suggest using views to build this, but who am I to tell you what's right?
      *
      * @param string $field_name The name of the field
+     * @param string|null $value The value of the field
      * @param array $entry All of the incoming entry data
      * @param string $source db/post
      * @return string
      */
-    public function publishFormHtml($field_name, $entry, $source)
+    public function publishFormHtml($field_name, $value, $entry, $source)
     {
         Cp::footerJavascript('');
         return '';
@@ -154,16 +158,17 @@ abstract class FieldType
      * The validation rules performed on submission
      *
      * @param string $field_name The name of the field
+     * @param string|null $value The value of the field
      * @param array $entry All of the incoming entry data
      * @param string $source db/post
      * @return array
      */
-    public function publishFormValidation($field_name, $entry, $source)
+    public function publishFormValidation($field_name, $value, $entry, $source)
     {
         $rules = [];
 
         if ($this->fields->is_field_required == 'y') {
-            $rules[] = 'required';
+            $rules[$field_name] = 'required';
         }
 
         return $rules;
@@ -172,18 +177,18 @@ abstract class FieldType
     // ----------------------------------------------------
 
     /**
-     * Store Value
+     * Template Output
      *
-     * What should be stored in the database column for this field
+     * What you output to the Template
      *
      * @param string $field_name The name of the field
+     * @param string|null $value The value of the field
      * @param array $entry All of the incoming entry data
-     * @param string $source db/post
      * @return mixed
      */
-    public function storedValue($field_name, $entry, $source)
+    public function templateOutput($field_name, $value, $entry)
     {
-        return $entry['field_'.$field_name];
+        return $value;
     }
 
     // -------------------------------------------------------------------------

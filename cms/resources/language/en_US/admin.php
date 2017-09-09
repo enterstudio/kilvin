@@ -1157,11 +1157,8 @@ return [
 "field_max_length_cont" =>
 "If you are using a \"text\" field type",
 
-"textarea_rows" =>
+"Textarea Rows" =>
 "Textarea Rows",
-
-"textarea_rows_cont" =>
-"If you are using a \"textarea\" field type",
 
 "dropdown_sub" =>
 "If you are using a \"drop-down\" field type",
@@ -1191,6 +1188,9 @@ return [
 "Text Input",
 
 "textarea" =>
+"Textarea",
+
+"Textarea" =>
 "Textarea",
 
 "select_list" =>
