@@ -952,16 +952,6 @@ EOT;
         }
 
         // ------------------------------------
-        //  Textarea field types
-        // ------------------------------------
-
-        if ($row->field_type == 'textarea')
-        {
-            $rows = ( ! isset($row->textarea_num_rows)) ? '10' : $row->textarea_num_rows;
-
-            $r .= Cp::input_textarea('field_'.$row->field_name, $field_data, $rows, 'textarea', '100%', '', false);
-        }
-        // ------------------------------------
         //  Date field types
         // ------------------------------------
 
@@ -1039,73 +1029,6 @@ EOT;
             '</a>'.NBS.'|'.NBS;
             $r .= '<a href="javascript:void(0);" onclick="clear_field(\''.$date_field.'\');" >'.__('cp.clear').'</a>';
             $r .= '</div>'.PHP_EOL;
-        }
-        // ------------------------------------
-        //  Text input field types
-        // ------------------------------------
-
-        if ($row->field_type == 'text')
-        {
-            $field_js = "onFocus='setFieldName(this.name)'";
-            $r .= Cp::input_text(
-                'field_'.$row->field_name,
-                $field_data,
-                '50',
-                $row->field_maxlength,
-                'input',
-                '100%',
-                $field_js,
-                false);
-        }
-
-        // ------------------------------------
-        //  Drop-down lists
-        // ------------------------------------
-
-        if ($row->field_type == 'select')
-        {
-            $r .= Cp::input_select_header('field_'.$row->field_name, '', '');
-
-            if ($row->field_pre_populate == 'n')
-            {
-                foreach (explode("\n", trim($row->field_list_items)) as $v)
-                {
-                    $v = trim($v);
-
-                    $selected = ($v == $field_data) ? 1 : '';
-
-                    $v = escape_attribute($v);
-                    $r .= Cp::input_select_option($v, $v, $selected);
-                }
-            }
-            else
-            {
-                // We need to pre-populate this menu from an another weblog custom field
-                $pop_query = DB::table('weblog_entry_data')
-                    ->where('weblog_id', $row->field_pre_blog_id)
-                    ->select("field_".$row->field_pre_field_name)
-                    ->get();
-
-                $r .= Cp::input_select_option('', '--', '');
-
-                if ($pop_query->count() > 0) {
-                    foreach ($pop_query as $prow) {
-                        $selected = ($prow->{'field_'.$row->field_pre_field_name} == $field_data) ? 1 : '';
-                        $pretitle = substr($prow->{'field_'.$row->field_pre_field_name}, 0, 110);
-                        $pretitle = preg_replace("/\r\n|\r|\n|\t/", ' ', $pretitle);
-                        $pretitle = escape_attribute($pretitle);
-
-                        $r .= Cp::input_select_option(
-                            escape_attribute(
-                                $prow->{'field_'.$row->field_pre_field_name}),
-                            $pretitle,
-                            $selected
-                        );
-                    }
-                }
-            }
-
-            $r .= Cp::input_select_footer();
         }
 
         // @todo

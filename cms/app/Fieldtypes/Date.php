@@ -6,8 +6,9 @@ use Cp;
 use Kilvin\Plugins\Weblogs\Models\Entry;
 use Illuminate\Database\Schema\Blueprint;
 use Kilvin\Support\Plugins\FieldType;
+use Illuminate\Validation\ValidationException;
 
-class Textarea extends FieldType
+class Date extends FieldType
 {
     protected $field;
 
@@ -20,7 +21,7 @@ class Textarea extends FieldType
      */
     public function name()
     {
-        return __('admin.Textarea');
+        return __('admin.Date');
     }
 
     // ----------------------------------------------------
@@ -38,7 +39,8 @@ class Textarea extends FieldType
      */
     public function columnType($column_name, Blueprint &$table, $existing = null)
     {
-        $table->text($column_name)->nullable(true);
+        // @todo - Certain fields will fail to convert to timestamp, so check for that and throw Exception
+        $table->timestamp($column_name)->nullable(true)->change();
     }
 
     // ----------------------------------------------------
@@ -55,7 +57,23 @@ class Textarea extends FieldType
      */
     public function storedValue($value, $entry, $source)
     {
-        return $value;
+        if (empty($value)) {
+            return null;
+        }
+
+        $custom_date = Localize::humanReadableToUtcCarbon($value);
+
+        // Localize::humanReadableToUtcCarbon() returns either a
+        // valid Carbon object or a verbose error
+        if ( ! $custom_date instanceof Carbon) {
+            if ($custom_date !== false) {
+                throw new ValidationException($custom_date.' ('.$this->field->field_label.')');
+            }
+
+            throw new ValidationException(__('publish.invalid_date_formatting'));
+        }
+
+        return $custom_date;
     }
 
     // ----------------------------------------------------
@@ -70,24 +88,7 @@ class Textarea extends FieldType
      */
     public function settingsFormFields($settings = [])
     {
-        $num_rows = (!empty($settings['textarea_num_rows'])) ? $settings['textarea_num_rows'] : 10;
-        return
-            '<table>
-                <tr>
-                    <td>
-                        <div class="littlePadding">
-                            <input
-                                style="width:100%""
-                                type="text"
-                                id="textarea_num_rows"
-                                name="settings[textarea_num_rows]"
-                                value="'.$num_rows.'"
-                            >'.
-                            ' '.__('admin.Textarea Row').
-                         '</div>
-                     </td>
-                 </tr>
-             </table>';
+        return '';
     }
 
     // ----------------------------------------------------
@@ -102,9 +103,7 @@ class Textarea extends FieldType
      */
     public function settingsValidationRules($incoming = [])
     {
-        $rules['settings[textarea_num_rows]'] = 'nullable|integer|max:100';
-
-        return $rules;
+        return [];
     }
 
     // ----------------------------------------------------
@@ -122,17 +121,72 @@ class Textarea extends FieldType
      */
     public function publishFormHtml($value, $entry, $source)
     {
-        Cp::footerJavascript('');
+        if (empty($value)) {
+            $value = '';
+        }
 
-        $row = (!empty($field->settings['textarea_num_rows'])) ? ceil($field->settings['textarea_num_rows']) : 10;
+        $custom_date_string = '';
+        $custom_date = '';
+        $cal_date = '';
 
-        return '<textarea
-            style="width:100%;"
-            id="'.$this->field->field_name.'"
-            name="fields['.$this->field->field_name.']"
-            rows="'.$rows.'"
-            class="textarea"
-        >'.escape_attribute($value).'</textarea>';
+        if ($source == 'post') {
+            $custom_date = (empty($value)) ? '' : Localize::humanReadableToUtcCarbon($value);
+        } else {
+            $custom_date = (empty($value)) ? '' : Carbon::parse($value);
+        }
+
+        if (!empty($custom_date) && $custom_date instanceof Carbon) {
+            $date_object     = (empty($custom_date)) ? Carbon::now() : $custom_date->copy();
+            $date_object->tz = Site::config('site_timezone');
+            $cal_date        = $date_object->timestamp * 1000;
+
+            $custom_date_string = Localize::createHumanReadableDateTime($date_object);
+        }
+
+        // ------------------------------------
+        //  JavaScript Calendar
+        // ------------------------------------
+
+        $cal_img =
+            '<a href="#" class="toggle-element" data-toggle="calendar_'.$this->field->field_name.'">
+                <span style="display:inline-block; height:25px; width:25px; vertical-align:top;">
+                    '.Cp::calendarImage().'
+                </span>
+            </a>';
+
+        $r .= Cp::input_text(
+            $this->field->field_name,
+            $custom_date_string,
+            '22',
+            '22',
+            'input',
+            '170px',
+            'onkeyup="update_calendar(\''.$this->field->field_name.'\', this.value);" '
+        ).
+        $cal_img;
+
+        $r .= '<div id="calendar_'.$this->field->field_name.'" style="display:none;margin:4px 0 0 0;padding:0;">';
+
+        $xmark = ($custom_date_string == '') ? 'false' : 'true';
+        $r .= PHP_EOL.'<script type="text/javascript">
+
+                var '.$this->field->field_name .' = new calendar(
+                                        "'.$this->field->field_name.'",
+                                        new Date('.$cal_date.'),
+                                        '.$xmark.'
+                                        );
+
+                document.write('.$this->field->field_name.'.write());
+                </script>'.PHP_EOL;
+
+        $r .= '</div>';
+
+        $r .= Cp::div('littlePadding');
+        $r .= '<a href="javascript:void(0);" onclick="set_to_now(\''.$this->field->field_name.'\')" >'.
+        __('publish.today').
+        '</a>'.NBS.'|'.NBS;
+        $r .= '<a href="javascript:void(0);" onclick="clear_field(\''.$this->field->field_name.'\');" >'.__('cp.clear').'</a>';
+        $r .= '</div>'.PHP_EOL;
     }
 
     // ----------------------------------------------------
@@ -155,6 +209,8 @@ class Textarea extends FieldType
             $rules['fields['.$this->field->field_name.']'][] = 'required';
         }
 
+        $rules['fields['.$this->field->field_name.']'][] = 'date';
+
         return $rules;
     }
 
@@ -171,7 +227,7 @@ class Textarea extends FieldType
      */
     public function templateOutput($value, $entry)
     {
-        return $value;
+        return (string) $value;
     }
 
     // -------------------------------------------------------------------------

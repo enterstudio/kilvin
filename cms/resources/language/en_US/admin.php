@@ -693,8 +693,8 @@ return [
 "field_label_info" =>
 "This is the name that will appear in the PUBLISH page",
 
-"date_field" =>
-"Date Field",
+"Date" =>
+"Date",
 
 "update_publish_cats" =>
 "Close Window and Update Categories in PUBLISH Page",
@@ -1184,7 +1184,7 @@ return [
 "is_field_required" =>
 "Is this a required field?",
 
-"text_input" =>
+"Text Input" =>
 "Text Input",
 
 "textarea" =>
@@ -1193,8 +1193,8 @@ return [
 "Textarea" =>
 "Textarea",
 
-"select_list" =>
-"Drop-down List",
+"Dropdown" =>
+"Dropdown",
 
 'site_id_mismatch' =>
 'You are not logged into the correct Site to perform this action',

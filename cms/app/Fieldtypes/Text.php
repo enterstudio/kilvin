@@ -7,7 +7,7 @@ use Kilvin\Plugins\Weblogs\Models\Entry;
 use Illuminate\Database\Schema\Blueprint;
 use Kilvin\Support\Plugins\FieldType;
 
-class Textarea extends FieldType
+class Text extends FieldType
 {
     protected $field;
 
@@ -20,7 +20,7 @@ class Textarea extends FieldType
      */
     public function name()
     {
-        return __('admin.Textarea');
+        return __('admin.Text Input');
     }
 
     // ----------------------------------------------------
@@ -70,21 +70,22 @@ class Textarea extends FieldType
      */
     public function settingsFormFields($settings = [])
     {
-        $num_rows = (!empty($settings['textarea_num_rows'])) ? $settings['textarea_num_rows'] : 10;
+        $maxlength = (!empty($settings['text_max_length'])) ? $settings['text_max_length'] : 10;
+
         return
             '<table>
                 <tr>
                     <td>
                         <div class="littlePadding">
-                            <input
-                                style="width:100%""
-                                type="text"
-                                id="textarea_num_rows"
-                                name="settings[textarea_num_rows]"
-                                value="'.$num_rows.'"
-                            >'.
-                            ' '.__('admin.Textarea Row').
-                         '</div>
+                        <input
+                            style="width:100%""
+                            type="text"
+                            id="text_max_length"
+                            name="settings[text_max_length]"
+                            value="'.$maxlength.'"
+                        >'.
+                        ' '.__('admin.field_max_length').
+                     '</div>
                      </td>
                  </tr>
              </table>';
@@ -102,7 +103,7 @@ class Textarea extends FieldType
      */
     public function settingsValidationRules($incoming = [])
     {
-        $rules['settings[textarea_num_rows]'] = 'nullable|integer|max:100';
+        $rules['settings[text_max_length]'] = 'nullable|integer|max:100';
 
         return $rules;
     }
@@ -124,15 +125,16 @@ class Textarea extends FieldType
     {
         Cp::footerJavascript('');
 
-        $row = (!empty($field->settings['textarea_num_rows'])) ? ceil($field->settings['textarea_num_rows']) : 10;
+        $maxlength = (!empty($field->settings['text_max_length'])) ? ceil($field->settings['text_max_length']) : '';
+        $value     = escape_attribute($value);
 
-        return '<textarea
-            style="width:100%;"
+        return '<input
+            style="width:100%""
+            type="text"
             id="'.$this->field->field_name.'"
             name="fields['.$this->field->field_name.']"
-            rows="'.$rows.'"
-            class="textarea"
-        >'.escape_attribute($value).'</textarea>';
+            value="'.$value.'"
+            maxlength="'.$maxl.'">';
     }
 
     // ----------------------------------------------------

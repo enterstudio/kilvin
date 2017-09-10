@@ -4646,7 +4646,7 @@ EOT;
         // FieldTypes!
         $field_types = Plugins::fieldTypes();
 
-//        dd($field_types);
+        // dd($field_types);
 
         $i = 0;
 
@@ -4674,13 +4674,13 @@ EOT;
 
                 switch ($row->field_type)
                 {
-                    case 'text' :  $field_type = __('admin.text_input');
+                    case 'text' :  $field_type = __('admin.Text Input');
                         break;
                     case 'textarea' :  $field_type = __('admin.Textarea');
                         break;
-                    case 'select' :  $field_type = __('admin.select_list');
+                    case 'dropdown' :  $field_type = __('admin.Dropdown');
                         break;
-                    case 'date' :  $field_type = __('admin.date_field');
+                    case 'date' :  $field_type = __('admin.Date');
                         break;
                 }
 
@@ -4745,7 +4745,7 @@ EOT;
             ->first();
 
         // FieldTypes!
-        $field_types = Plugins::fieldTypes();
+        //$field_types = Plugins::fieldTypes();
 
         $data = [];
 
@@ -4754,12 +4754,16 @@ EOT;
         $site_id              = $data['site_id'] = Site::config('site_id');
         $field_label          = $data['field_label'] = '';
         $field_type           = $data['field_type'] = '';
+
         $field_maxlength      = $data['field_maxlength'] = '';
         $textarea_num_rows    = $data['textarea_num_rows'] = '';
+
         $is_field_required    = $data['is_field_required']  = '';
+
         $group_id             = $data['group_id'] = '';
         $group_name           = $data['group_name'] = '';
         $field_instructions   = $data['field_instructions'] = '';
+
         $field_list_items     = $data['field_list_items'] ='';
         $field_pre_populate   = $data['field_pre_populate'] = '';
         $field_pre_blog_id    = $data['field_pre_blog_id'] = '';
@@ -4809,7 +4813,7 @@ EOT;
             	$options = ['textarea_block'];
             }
 
-            if (id == 'select') {
+            if (id == 'dropdown') {
             	$options = ['select_block', 'pre_populate'];
             }
 
@@ -4837,14 +4841,6 @@ EOT;
             	$('#populate_block_man').css('display', 'none');
             	$('#populate_block_blog').css('display', 'block');
             }
-        }
-
-        function validate()
-        {
-			if (!$('select[name=field_pre_populate_id]').val()) {
-				alert("<?php echo __('admin.field_val'); ?>");
-				return false;
-			}
         }
 
 	</script>
@@ -4925,7 +4921,7 @@ EOT;
                 break;
             case 'textarea' : $sel_2 = 1; $textarea_js = 'block';
                 break;
-            case 'select'   : $sel_3 = 1; $select_js = 'block'; $select_opt_js = 'block';
+            case 'dropdown'   : $sel_3 = 1; $select_js = 'block'; $select_opt_js = 'block';
                 break;
             case 'date'     : $sel_4 = 1; $date_js = 'block';
                 break;
@@ -4936,10 +4932,10 @@ EOT;
         // ------------------------------------
 
         $typemenu = "<select name='field_type' class='select' onchange='displayFieldTypeOptions();' >".PHP_EOL;
-        $typemenu .= Cp::input_select_option('text',      __('admin.text_input'),  $sel_1)
+        $typemenu .= Cp::input_select_option('text',      __('admin.Text Input'),  $sel_1)
                     .Cp::input_select_option('textarea',  __('admin.Textarea'),    $sel_2)
-                    .Cp::input_select_option('select',    __('admin.select_list'), $sel_3)
-                    .Cp::input_select_option('date',      __('admin.date_field'),  $sel_4);
+                    .Cp::input_select_option('dropdown',    __('admin.Dropdown'), $sel_3)
+                    .Cp::input_select_option('date',      __('admin.Date'),  $sel_4);
         $typemenu .= Cp::input_select_footer();
 
         // ------------------------------------
@@ -5011,7 +5007,7 @@ EOT;
 
         // Create the drop-down menu
         $typopts .= Cp::quickDiv('littlePadding', Cp::quickDiv('defaultBold', __('admin.select_weblog_for_field')));
-        $typopts .= "<select name='field_pre_populate_id' class='select' onchange='validate();' >".PHP_EOL;
+        $typopts .= "<select name='field_pre_populate_id' class='select' >".PHP_EOL;
 
         foreach ($query as $row)
         {

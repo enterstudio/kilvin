@@ -72,13 +72,14 @@ abstract class FieldType
      * Essentially we send you the Blueprint object and you add whatever field type you want
      *
      * @link https://laravel.com/docs/5.5/migrations#columns
-     * @param string $field_name The name of the field
+     * @param string $column_name What the column will be called in the weblog_field_data table
      * @param Illuminate\Database\Schema\Blueprint $table The table that is having the field added
-     * @return object
+     * @param null|object $existing On edit, if changing field type, we send existing column details
+     * @return void
      */
-    public function columnType($field_name, Blueprint $table)
+    public function columnType($column_name, Blueprint &$table, $existing = null)
     {
-        $table->text($field_name);
+        $table->text($column_name)->nullable(true);
     }
 
     // ----------------------------------------------------
@@ -88,15 +89,14 @@ abstract class FieldType
      *
      * That which is pushed out to the Template parser as final value
      *
-     * @param string $field_name The name of the field
      * @param string|null $value The value of the field
      * @param array $entry All of the incoming entry data
      * @param string $source db/post
      * @return mixed Could be anything really, as long as Twig can use it
      */
-    public function storedValue($field_name, $value, $entry, $source)
+    public function storedValue($value, $entry, $source)
     {
-        return $entry['field_'.$field_name];
+        return $entry[$this->field->field_name];
     }
 
     // ----------------------------------------------------
@@ -138,13 +138,12 @@ abstract class FieldType
      * The HTML displayed in the Publish form for this field.
      * I'd suggest using views to build this, but who am I to tell you what's right?
      *
-     * @param string $field_name The name of the field
      * @param string|null $value The value of the field
      * @param array $entry All of the incoming entry data
      * @param string $source db/post
      * @return string
      */
-    public function publishFormHtml($field_name, $value, $entry, $source)
+    public function publishFormHtml($value, $entry, $source)
     {
         Cp::footerJavascript('');
         return '';
@@ -157,18 +156,17 @@ abstract class FieldType
      *
      * The validation rules performed on submission
      *
-     * @param string $field_name The name of the field
      * @param string|null $value The value of the field
      * @param array $entry All of the incoming entry data
      * @param string $source db/post
      * @return array
      */
-    public function publishFormValidation($field_name, $value, $entry, $source)
+    public function publishFormValidation($value, $entry, $source)
     {
         $rules = [];
 
         if ($this->fields->is_field_required == 'y') {
-            $rules[$field_name] = 'required';
+            $rules['fields['.$this->field->field_name.']'][] = 'required';
         }
 
         return $rules;
@@ -181,12 +179,11 @@ abstract class FieldType
      *
      * What you output to the Template
      *
-     * @param string $field_name The name of the field
      * @param string|null $value The value of the field
      * @param array $entry All of the incoming entry data
      * @return mixed
      */
-    public function templateOutput($field_name, $value, $entry)
+    public function templateOutput($value, $entry)
     {
         return $value;
     }

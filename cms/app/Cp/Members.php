@@ -2256,7 +2256,7 @@ EOT;
         // ------------------------------------
 
         $typemenu = "<select name='field_type' class='select' onchange='switchFieldTypeDisplay();' >".PHP_EOL;
-        $typemenu .= Cp::input_select_option('text',      __('admin.text_input'), $sel_1)
+        $typemenu .= Cp::input_select_option('text',      __('admin.Text Field'), $sel_1)
                     .Cp::input_select_option('textarea',  __('admin.Textarea'),   $sel_2)
                     .Cp::input_select_option('select',    __('admin.select_list'), $sel_3)
                     .Cp::input_select_footer();
