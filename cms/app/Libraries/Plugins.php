@@ -337,6 +337,7 @@ class Plugins
             $object = app($full_class);
             $name = $object->name();
 
+            $info['class_name'] = $class;
             $info['class'] = $plugin_namespace.$class;
             $info['path']  = $file_info->getPathname();
 
