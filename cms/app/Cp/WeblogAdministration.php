@@ -5264,7 +5264,7 @@ EOT;
 
         session()->flash('cp-message', $edit);
 
-        return redirect('?C=WeblogAdministration&M=field_manager&group_id='.$group_id)
+        return redirect('?C=WeblogAdministration&M=field_manager&group_id='.$group_id);
     }
 
     // --------------------------------------------------------------------
@@ -5352,7 +5352,7 @@ EOT;
 
         session()->flash('cp-message', __('admin.field_deleted').' '.$field_name);
 
-        return redirect('?C=WeblogAdministration&M=field_manager&group_id='.$group_id)
+        return redirect('?C=WeblogAdministration&M=field_manager&group_id='.$group_id);
     }
 
     // --------------------------------------------------------------------
