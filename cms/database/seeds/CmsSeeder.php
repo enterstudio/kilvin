@@ -158,9 +158,27 @@ class CmsSeeder extends Seeder
 			]);
 
 		$fields = [
-			[1, 'excerpt', 'Excerpt', 'Excerpts are optional hand-crafted summaries of your content.', 3],
-			[2, 'body', 'Body', '', 10],
-			[3, 'extended', 'Extended', '', 12]
+			[
+				1,
+				'excerpt',
+				'Excerpt',
+				'Excerpts are optional hand-crafted summaries of your content.',
+				json_encode(['textarea_num_rows' => 3])
+			],
+			[
+				2,
+				'body',
+				'Body',
+				'',
+				json_encode(['textarea_num_rows' => 10])
+			],
+			[
+				3,
+				'extended',
+				'Extended',
+				'',
+				json_encode(['textarea_num_rows' => 20])
+			]
 		];
 
 		foreach($fields as $key => $field) {
@@ -169,12 +187,11 @@ class CmsSeeder extends Seeder
 				->insert([
 					'field_id'      	  => $field[0],
 					'group_id'      	  => 1,
-					'field_name'    	  => $field[1],
-					'field_label'		  => $field[2],
+					'field_handle'    	  => $field[1],
+					'field_name'		  => $field[2],
 					'field_instructions'  => $field[3],
-					'textarea_num_rows'   => $field[4],
+					'settings'   		  => $field[4],
 					'field_type'          => 'textarea',
-					'is_field_searchable' => 'y',
 				]);
 		}
 

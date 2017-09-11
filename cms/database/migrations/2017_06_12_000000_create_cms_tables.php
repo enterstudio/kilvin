@@ -294,21 +294,12 @@ class CreateCmsTables extends Migration
         {
             $table->increments('field_id');
             $table->unsignedInteger('group_id')->index();
-            $table->string('field_name', 40);
-            $table->string('field_label', 50);
+            $table->string('field_name', 60);
+            $table->string('field_handle', 40);
             $table->text('field_instructions');
-            $table->string('field_type', 50)->default('text')->index();
-            $table->text('field_list_items')->nullable();
-
-            $table->char('field_pre_populate', 1)->default('n');
-            $table->unsignedSmallInteger('field_pre_blog_id')->nullable();
-            $table->string('field_pre_field_name', 40)->nullable();
-
-            $table->unsignedTinyInteger('textarea_num_rows')->default(8);
-            $table->unsignedSmallInteger('field_maxlength')->nullable();
-
-            $table->char('is_field_required', 1)->default('n');
-            $table->char('is_field_searchable', 1)->default('n');
+            $table->string('field_type', 50)->index();
+            $table->boolean('is_field_required')->default(false);
+            $table->text('settings')->nullable(true);
         });
 
         // Field data for weblog entry

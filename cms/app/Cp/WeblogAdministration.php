@@ -4729,131 +4729,77 @@ EOT;
 
         $type = ($field_id) ? 'edit' : 'new';
 
+        // ------------------------------------
+        //  Variables
+        // ------------------------------------
+
+        $field_id            = '';
+        $field_handle        = '';
+        $field_name          = '';
+        $field_instructions  = '';
+        $field_type          = '';
+
+        $is_field_required   = false;
+
+        $group_id            = '';
+        $group_name          = '';
+
         $total_fields = '';
 
         if ($type == 'new') {
             $total_fields = 1 + DB::table('weblog_fields')->count();
         }
 
-        $query = DB::table('weblog_fields AS f')
-            ->join('field_groups AS g', 'f.group_id', '=', 'g.group_id')
-            ->where('f.field_id', $field_id)
-            ->select(
-                'f.*',
-                'g.group_name'
-            )
-            ->first();
+        if ($field_id) {
+            $query = DB::table('weblog_fields AS f')
+                ->join('field_groups AS g', 'f.group_id', '=', 'g.group_id')
+                ->where('f.field_id', $field_id)
+                ->select(
+                    'f.*',
+                    'g.group_name'
+                )
+                ->firstOrFail();
 
-        // FieldTypes!
-        //$field_types = Plugins::fieldTypes();
-
-        $data = [];
-
-        $field_id             = $data['field_id'] = '';
-        $field_name           = $data['field_name'] = '';
-        $site_id              = $data['site_id'] = Site::config('site_id');
-        $field_label          = $data['field_label'] = '';
-        $field_type           = $data['field_type'] = '';
-
-        $field_maxlength      = $data['field_maxlength'] = '';
-        $textarea_num_rows    = $data['textarea_num_rows'] = '';
-
-        $is_field_required    = $data['is_field_required']  = '';
-
-        $group_id             = $data['group_id'] = '';
-        $group_name           = $data['group_name'] = '';
-        $field_instructions   = $data['field_instructions'] = '';
-
-        $field_list_items     = $data['field_list_items'] ='';
-        $field_pre_populate   = $data['field_pre_populate'] = '';
-        $field_pre_blog_id    = $data['field_pre_blog_id'] = '';
-        $field_pre_field_name = $data['field_pre_field_name'] = '';
-        $is_field_searchable  = $data['is_field_searchable'] = '';
-
-        if ($query) {
             foreach ($query as $key => $val) {
-                $data[$key] = $val;
                 $$key = $val;
             }
         }
 
-        if ($group_id == '') {
+        if (empty($group_id)) {
             $group_id = Request::input('group_id');
         }
 
-        if ($group_name == '') {
-            $query = DB::table('field_groups')
-                ->select('group_name')
+        if (empty($group_name)) {
+            $group_name = DB::table('field_groups')
                 ->where('group_id', $group_id)
-                ->first();
-
-            if ($query) {
-                $group_name = $query->group_name;
-            }
+                ->value('group_name');
         }
 
-        // JavaScript Stuff
-        $val = __('admin.field_val');
+        // ------------------------------------
+        //  JavaScript
+        // ------------------------------------
 
-        $r = '';
-
-        ob_start();
-        ?>
+        $js = <<<EOT
 	<script type="text/javascript">
 
         function displayFieldTypeOptions(id)
         {
-        	var id = $('select[name=field_type]').val();
-
-            if (id == 'text') {
-            	$options = ['text_block'];
-            }
-
-            if (id == 'textarea') {
-            	$options = ['textarea_block'];
-            }
-
-            if (id == 'dropdown') {
-            	$options = ['select_block', 'pre_populate'];
-            }
-
-            if (id == 'date') {
-            	$options = ['date_block', 'direction_unavailable'];
-            }
+        	var field_type = $('select[name=field_type]').val();
 
             $('.field-option').css('display', 'none');
 
-            if ($options) {
-            	for(i=0; i < $options.length; i++) {
-            		$('#'+$options[i]).css('display', 'block');
-            	}
-            }
+            $('#field_type_settings_'+field_type).css('display', 'block');
         }
-
-        function pre_populate(id)
-        {
-            if (id == 'n') {
-            	$('#populate_block_man').css('display', 'block');
-            	$('#populate_block_blog').css('display', 'none');
-            }
-
-            if (id == 'y') {
-            	$('#populate_block_man').css('display', 'none');
-            	$('#populate_block_blog').css('display', 'block');
-            }
-        }
-
 	</script>
-        <?php
+EOT;
 
-        $js = ob_get_contents();
-        ob_end_clean();
 
-        $r .= $js;
-        $r .= PHP_EOL.PHP_EOL;
-        $typopts  = '';
+        $r = $js;
 
-        // Form declaration
+        // ------------------------------------
+        //  Form Opening
+        // ------------------------------------
+
         $r .= Cp::formOpen([
         	'action' => 'C=WeblogAdministration'.AMP.'M=updateField',
         	'name' => 'field_form'
@@ -4879,8 +4825,32 @@ EOT;
         // ------------------------------------
 
         $r .= '<tr>'.PHP_EOL;
-        $r .= Cp::tableCell('', Cp::quickSpan('defaultBold', Cp::required().NBS.__('admin.field_label')).Cp::quickDiv('', __('admin.field_label_info')), '50%');
-        $r .= Cp::tableCell('', Cp::input_text('field_label', $field_label, '20', '60', 'input', '260px'), '50%');
+        $r .= Cp::tableCell(
+            '',
+            Cp::quickSpan(
+                'defaultBold',
+                Cp::required().__('admin.field_label')
+            ).
+            Cp::quickDiv(
+                '',
+                __('admin.field_label_info')
+            ),
+            '50%'
+        );
+
+        $r .= Cp::tableCell(
+            '',
+            Cp::input_text(
+                'field_name',
+                $field_name,
+                '20',
+                '60',
+                'input',
+                '260px'
+            ),
+            '50%'
+        );
+
         $r .= '</tr>'.PHP_EOL;
 
         // ------------------------------------
@@ -4888,8 +4858,32 @@ EOT;
         // ------------------------------------
 
         $r .= '<tr>'.PHP_EOL;
-        $r .= Cp::tableCell('', Cp::quickSpan('defaultBold', Cp::required().NBS.__('admin.field_name')).Cp::quickDiv('littlePadding', __('admin.field_name_explanation')), '50%');
-        $r .= Cp::tableCell('', Cp::input_text('field_name', $field_name, '20', '60', 'input', '260px'), '50%');
+        $r .= Cp::tableCell(
+            '',
+            Cp::quickSpan(
+                'defaultBold',
+                Cp::required().__('admin.field_name')
+            ).
+            Cp::quickDiv(
+                'littlePadding',
+                __('admin.field_name_explanation')
+            ),
+            '50%'
+        );
+
+        $r .= Cp::tableCell(
+            '',
+            Cp::input_text(
+                'field_handle',
+                $field_handle,
+                '20',
+                '60',
+                'input',
+                '260px'
+            ),
+            '50%'
+        );
+
         $r .= '</tr>'.PHP_EOL;
 
         // ------------------------------------
@@ -4897,183 +4891,33 @@ EOT;
         // ------------------------------------
 
         $r .= '<tr>'.PHP_EOL;
-        $r .= Cp::tableCell('', Cp::quickSpan('defaultBold', __('admin.field_instructions')).Cp::quickDiv('', __('admin.field_instructions_info')), '50%', 'top');
-        $r .= Cp::tableCell('', Cp::input_textarea('field_instructions', $field_instructions, '6', 'textarea', '99%'), '50%', 'top');
-        $r .= '</tr>'.PHP_EOL;
+        $r .= Cp::tableCell(
+            '',
+            Cp::quickSpan(
+                'defaultBold',
+                __('admin.field_instructions')
+            ).
+            Cp::quickDiv(
+                '',
+                __('admin.field_instructions_info')
+            ),
+            '50%',
+            'top'
+        );
 
-        // ------------------------------------
-        //  Field type
-        // ------------------------------------
+        $r .= Cp::tableCell(
+            '',
+            Cp::input_textarea(
+                'field_instructions',
+                $field_instructions,
+                '6',
+                'textarea',
+                '99%'
+            ),
+            '50%',
+            'top'
+        );
 
-        $sel_1 = ''; $sel_2 = ''; $sel_3 = ''; $sel_4 = ''; $sel_5 = '';
-
-        $text_js 		= ($type == 'edit') ? 'none' : 'block';
-        $textarea_js   = 'none';
-        $select_js     = 'none';
-        $select_opt_js = 'none';
-        $date_js       = 'none';
-        $rel_js        = 'none';
-        $rel_type_js   = 'none';
-
-        switch ($field_type)
-        {
-            case 'text'     : $sel_1 = 1; $text_js = 'block';
-                break;
-            case 'textarea' : $sel_2 = 1; $textarea_js = 'block';
-                break;
-            case 'dropdown'   : $sel_3 = 1; $select_js = 'block'; $select_opt_js = 'block';
-                break;
-            case 'date'     : $sel_4 = 1; $date_js = 'block';
-                break;
-        }
-
-        // ------------------------------------
-        //  Create the pull-down menu
-        // ------------------------------------
-
-        $typemenu = "<select name='field_type' class='select' onchange='displayFieldTypeOptions();' >".PHP_EOL;
-        $typemenu .= Cp::input_select_option('text',      __('admin.Text Input'),  $sel_1)
-                    .Cp::input_select_option('textarea',  __('admin.Textarea'),    $sel_2)
-                    .Cp::input_select_option('dropdown',    __('admin.Dropdown'), $sel_3)
-                    .Cp::input_select_option('date',      __('admin.Date'),  $sel_4);
-        $typemenu .= Cp::input_select_footer();
-
-        // ------------------------------------
-        //  Create the "populate" radio buttons
-        // ------------------------------------
-
-        if ($field_pre_populate == '') {
-            $field_pre_populate = 'n';
-        }
-
-        $typemenu .= '<div id="pre_populate" class="field-option" style="display: '.$select_opt_js.'; padding:0; margin:5px 0 0 0;">';
-
-        $typemenu .= Cp::quickDiv(
-        	'default',
-        	'<label>'.
-        		Cp::input_radio('field_pre_populate', 'n', ($field_pre_populate == 'n') ? 1 : 0, " onclick=\"pre_populate('n');\"").' '.
-        		__('admin.field_populate_manually').
-        	'</label>');
-
-        $typemenu .= Cp::quickDiv(
-        	'default',
-        	'<label>'.
-        		Cp::input_radio('field_pre_populate', 'y', ($field_pre_populate == 'y') ? 1 : 0, " onclick=\"pre_populate('y');\"").' '.
-        		__('admin.field_populate_from_blog').
-        	'</label>');
-        $typemenu .= '</div>'.PHP_EOL;
-
-        // ------------------------------------
-        //  Select List Field
-        // ------------------------------------
-
-        $typopts .= '<div id="select_block" class="field-option" style="display: '.$select_js.'; padding:0; margin:5px 0 0 0;">';
-
-        // ------------------------------------
-        //  Populate Manually
-        // ------------------------------------
-
-        $man_populate_js = ($field_pre_populate == 'n') ? 'block' : 'none';
-        $typopts .= '<div id="populate_block_man" style="display: '.$man_populate_js.'; padding:0; margin:5px 0 0 0;">';
-        $typopts .= Cp::quickDiv(
-				'defaultBold',
-				__('admin.field_list_items')
-        	).
-        	Cp::quickDiv(
-        		'default',
-        		__('admin.field_list_instructions')
-        	).
-        	Cp::input_textarea(
-        		'field_list_items',
-        		$field_list_items,
-        		10,
-        		'textarea',
-        		'400px'
-        	);
-
-        $typopts .= '</div>'.PHP_EOL;
-
-        // ------------------------------------
-        //  Populate via an existing field
-        // ------------------------------------
-
-        $weblog_populate_js = ($field_pre_populate == 'y') ? 'block' : 'none';
-        $typopts .= '<div id="populate_block_blog" style="display: '.$weblog_populate_js.'; padding:0; margin:5px 0 0 0;">';
-
-        $query = DB::table('weblogs')
-            ->orderBy('weblog_title', 'asc')
-            ->select('weblog_id', 'weblog_title', 'field_group')
-            ->get();
-
-        // Create the drop-down menu
-        $typopts .= Cp::quickDiv('littlePadding', Cp::quickDiv('defaultBold', __('admin.select_weblog_for_field')));
-        $typopts .= "<select name='field_pre_populate_id' class='select' >".PHP_EOL;
-
-        foreach ($query as $row)
-        {
-            // Fetch the field names
-            $rez = DB::table('weblog_fields')
-                ->where('group_id', $row->field_group)
-                ->orderBy('field_label', 'asc')
-                ->select('field_id', 'field_name', 'field_label')
-                ->get();
-
-            $typopts .= Cp::input_select_option('', $row->weblog_title);
-
-            foreach ($rez as $frow)
-            {
-                $sel = ($field_pre_blog_id == $row->weblog_id AND $field_pre_field_name == $frow->field_name) ? 1 : 0;
-
-                $typopts .= Cp::input_select_option(
-                    $row->weblog_id.'_'.$frow->field_name,
-                    NBS.'-'.NBS.$frow->field_label,
-                    $sel);
-            }
-        }
-
-        $typopts .= Cp::input_select_footer();
-        $typopts .= '</div>'.PHP_EOL;
-        $typopts .= '</div>'.PHP_EOL;
-
-        // ------------------------------------
-        //  Date type
-        // ------------------------------------
-
-        $typopts .= '<div id="date_block" class="field-option" style="display: '.$date_js.'; padding:0; margin:0;">';
-        $typopts .= NBS;
-        $typopts .= '</div>'.PHP_EOL;
-
-        // ------------------------------------
-        //  Max-length Field
-        // ------------------------------------
-
-        if ($type != 'edit') {
-            $field_maxlength = 128;
-        }
-
-        $z  = '<div id="text_block" class="field-option" style="display: '.$text_js.'; padding:0; margin:5px 0 0 0;">';
-        $z .= Cp::quickDiv('littlePadding', NBS.Cp::input_text('field_maxlength', $field_maxlength, '4', '3', 'input', '30px').NBS.__('admin.field_max_length'));
-        $z .= '</div>'.PHP_EOL;
-
-        // ------------------------------------
-        //  Textarea Row Field
-        // ------------------------------------
-
-        if ($type != 'edit') {
-            $textarea_num_rows = 6;
-        }
-
-        $z .= '<div id="textarea_block" class="field-option" style="display: '.$textarea_js.'; padding:0; margin:5px 0 0 0;">';
-        $z .= Cp::quickDiv('littlePadding', NBS.Cp::input_text('textarea_num_rows', $textarea_num_rows, '4', '3', 'input', '30px').NBS.__('admin.Textarea Rows'));
-        $z .= '</div>'.PHP_EOL;
-
-        // ------------------------------------
-        //  Generates the above items
-        // ------------------------------------
-
-        $r .= '<tr>'.PHP_EOL;
-        $r .= Cp::tableCell('', Cp::quickDiv('littlePadding', Cp::quickSpan('defaultBold', __('admin.field_type'))).$typemenu.$z, '50%', 'top');
-        $r .= Cp::tableCell('', $typopts, '50%');
         $r .= '</tr>'.PHP_EOL;
 
         // ------------------------------------
@@ -5085,31 +4929,58 @@ EOT;
         }
 
         $r .= '<tr>'.PHP_EOL;
-        $r .= Cp::tableCell('', Cp::quickSpan('defaultBold', __('admin.is_field_required')), '50%');
-        $r .= Cp::tableCell('', __('admin.yes').'&nbsp;'.Cp::input_radio('is_field_required', 'y', ($is_field_required == 'y') ? 1 : '').'&nbsp;'.__('admin.no').'&nbsp;'.Cp::input_radio('is_field_required', 'n', ($is_field_required == 'n') ? 1 : ''), '50%');
+        $r .= Cp::tableCell(
+            '',
+            Cp::quickSpan(
+                'defaultBold',
+                __('admin.is_field_required')
+            ),
+            '50%'
+        );
+
+        $r .= Cp::tableCell(
+            '',
+                __('admin.yes').
+                ' '.
+                Cp::input_radio('is_field_required', 'y', ($is_field_required == 'y') ? 1 : '').
+                ' '.
+                __('admin.no').' '.
+                Cp::input_radio('is_field_required', 'n', ($is_field_required == 'n') ? 1 : ''),
+            '50%'
+        );
+
         $r .= '</tr>'.PHP_EOL;
 
         // ------------------------------------
-        //  Is field searchable?
+        //  Create the Field Type pull-down menu
         // ------------------------------------
 
-        if ($is_field_searchable == '') {
-        	$is_field_searchable = 'n';
+        $r .= '<tr>'.PHP_EOL.'<td><strong>'.__('admin.Field Type').'</strong></td>';
+
+        $r .= '<td>';
+        $r .= "<select name='field_type' class='select'>";
+
+
+        $field_types = Plugins::fieldTypes();
+
+        foreach($field_types as $name => $details) {
+            $r .= Cp::input_select_option($details['class'], $name);
         }
 
-        $r .= '<tr>'.PHP_EOL;
-        $r .= Cp::tableCell('', Cp::quickSpan('defaultBold', __('admin.is_field_searchable')), '50%');
-        $r .= Cp::tableCell('', __('admin.yes').'&nbsp;'.Cp::input_radio('is_field_searchable', 'y', ($is_field_searchable == 'y') ? 1 : '').'&nbsp;'.__('admin.no').'&nbsp;'.Cp::input_radio('is_field_searchable', 'n', ($is_field_searchable == 'n') ? 1 : ''), '50%');
-        $r .= '</tr>'.PHP_EOL;
+        $r .= Cp::input_select_footer();
+
+        $r .= '</td></tr>'.PHP_EOL;
 
         // ------------------------------------
-        //  Field order
+        //  Close Default Fields
         // ------------------------------------
 
         $r .= '</table>'.PHP_EOL;
 
-        $r .= Cp::div('littlePadding');
-        $r .= Cp::quickDiv('littlePadding', Cp::required(1));
+
+        // ------------------------------------
+        //  Submit
+        // ------------------------------------
 
         if ($type == 'edit') {
             $r .= Cp::input_submit(__('cp.update'));

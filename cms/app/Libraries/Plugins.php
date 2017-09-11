@@ -254,6 +254,8 @@ class Plugins
             $field_types = array_merge($field_types, $plugin_filters);
         }
 
+        ksort($field_types);
+
         return $field_types;
     }
 
