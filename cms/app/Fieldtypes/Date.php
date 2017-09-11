@@ -39,8 +39,7 @@ class Date extends FieldType
      */
     public function columnType($column_name, Blueprint &$table, $existing = null)
     {
-        // @todo - Certain fields will fail to convert to timestamp, so check for that and throw Exception
-        $table->timestamp($column_name)->nullable(true)->change();
+        $table->timestamp($column_name)->nullable(true);
     }
 
     // ----------------------------------------------------

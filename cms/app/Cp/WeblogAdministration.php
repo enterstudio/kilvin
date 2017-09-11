@@ -4764,6 +4764,10 @@ EOT;
             }
 
             $settings = (!empty($settings)) ? json_decode($settings, true) : [];
+
+            if (!is_array($settings)) {
+                $settings = [];
+            }
         }
 
         if (empty($group_id)) {
@@ -4933,8 +4937,8 @@ EOT;
         //  Is field required?
         // ------------------------------------
 
-        if ($is_field_required == '') {
-        	$is_field_required = 'n';
+        if (empty($is_field_required)) {
+        	$is_field_required = 0;
         }
 
         $r .= '<tr>'.PHP_EOL;
@@ -4951,10 +4955,10 @@ EOT;
             '',
                 __('admin.yes').
                 ' '.
-                Cp::input_radio('is_field_required', 'y', ($is_field_required == 'y') ? 1 : '').
+                Cp::input_radio('is_field_required', '1', ($is_field_required == 1) ? 1 : '').
                 ' '.
                 __('admin.no').' '.
-                Cp::input_radio('is_field_required', 'n', ($is_field_required == 'n') ? 1 : ''),
+                Cp::input_radio('is_field_required', '0', ($is_field_required == 1) ? 1 : ''),
             '50%'
         );
 
@@ -4974,7 +4978,8 @@ EOT;
         $field_types = Plugins::fieldTypes();
 
         foreach($field_types as $name => $details) {
-            $r .= Cp::input_select_option($details['class_name'], $name);
+            $selected = ($name == $field_type);
+            $r .= Cp::input_select_option($details['class_name'], $name, $selected);
         }
 
         $r .= Cp::input_select_footer();
@@ -4992,11 +4997,8 @@ EOT;
         // ------------------------------------
 
         foreach($field_types as $name => $details) {
-
             $r .= '<div id="field_type_settings_'.$details['class_name'].'" class="field-option" style="display:none;">';
-
             $r .= app($details['class'])->settingsFormHtml($settings);
-
             $r .= '</div>';
         }
 
@@ -5142,7 +5144,7 @@ EOT;
         $data['settings'] = null;
 
         if (Request::filled('settings') && is_array(Request::input('settings'))) {
-            $data['settings'] = json_encode(Request::filled('settings'));
+            $data['settings'] = json_encode(Request::input('settings'));
         }
 
         // ------------------------------------
@@ -5164,20 +5166,55 @@ EOT;
 
             // ------------------------------------
             //  Change Field Type?
+            //  - We create a temporary field and copy data over
+            //  - This allows a simpler FieldType class for developers
+            //  - It also addresses the fact that Laravel/Doctrine is not very good with ALTERs
             // ------------------------------------
 
             if ($query->field_type != $data['field_type']) {
 
-                $current = Schema::getColumnType('weblog_entry_data', 'field_'.$query->field_handle);
+                $existing = Schema::getColumnType('weblog_entry_data', 'field_'.$query->field_handle);
 
+                $field_name      = 'field_'.$query->field_handle;
+                $temp_field_name = 'temp_field_'.str_random(10);
+
+                // Create Temp Field
                 try {
-                    Schema::table('weblog_entry_data', function($table) use ($query, $current, $fieldType)
+                    Schema::table('weblog_entry_data', function($table) use ($temp_field_name, $existing, $fieldType)
                     {
-                        $fieldType->columnType('field_'.$query->field_handle, $table, $current);
+                        $fieldType->columnType($temp_field_name, $table, $existing);
                     });
                 } catch (\Exception $e) {
-                    exit($e->getMessage());
+                    return Cp::errorMessage($e->getMessage());
                 }
+
+                // Copy Data Over
+                try {
+                    DB::table('weblog_entry_data')
+                        ->update([$temp_field_name => DB::raw($field_name)]);
+                } catch (\Exception $e) {
+
+                    // Drop Temp Column
+                    Schema::table('weblog_entry_data', function($table) use ($temp_field_name) {
+                        $table->dropColumn($temp_field_name);
+                    });
+
+                    return Cp::errorMessage(
+                            __('admin.Unable to convert current field data over to new field type')
+                        );
+                }
+
+                // Drop Old Column
+                Schema::table('weblog_entry_data', function($table) use ($field_name)
+                {
+                    $table->dropColumn($field_name);
+                });
+
+                // Rename Temp Column
+                Schema::table('weblog_entry_data', function($table) use ($field_name, $temp_field_name)
+                {
+                    $table->renameColumn( $temp_field_name, $field_name);
+                });
             }
 
             // ------------------------------------
@@ -5223,7 +5260,10 @@ EOT;
                     $fieldType->columnType('field_'.$query->field_handle, $table, null);
                 });
             } catch (\Exception $e) {
-                exit($e->getMessage());
+
+                DB::table('weblog_fields')->where('field_id', $insert_id)->delete();
+
+                return Cp::errorMessage($e->getMessage());
             }
 
             // ------------------------------------
@@ -5262,7 +5302,7 @@ EOT;
 
         cms_clear_caching('all');
 
-        session()->flash('cp-message', $edit);
+        session()->flash('cp-message', __('admin.Field Updated'));
 
         return redirect('?C=WeblogAdministration&M=field_manager&group_id='.$group_id);
     }
@@ -5297,7 +5337,7 @@ EOT;
                 'message'   => 'admin.delete_field_confirmation',
                 'item'      => $query->field_name,
                 'extra'     => '',
-                'hidden'    => array('field_id' => $field_id)
+                'hidden'    => ['field_id' => $field_id]
             ]
         );
     }
@@ -5329,8 +5369,7 @@ EOT;
         $field_type = $query->field_type;
         $field_handle = $query->field_handle;
 
-        Schema::table('weblog_entry_data', function($table) use ($field_handle)
-        {
+        Schema::table('weblog_entry_data', function($table) use ($field_handle) {
             if (!Schema::hasColumn('weblog_entry_data', 'field_'.$field_handle)) {
                 return;
             }
@@ -5347,6 +5386,10 @@ EOT;
             ->delete();
 
         Cp::log(__('admin.field_deleted').' '.$field_name);
+
+        // ------------------------------------
+        //  Clear Caching and Back to Field Manager
+        // ------------------------------------
 
         cms_clear_caching('all');
 

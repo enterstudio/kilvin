@@ -1226,6 +1226,9 @@ return [
 "field_group" =>
 "Field Group",
 
+'Field Updated' =>
+"Field Updated",
+
 "delete_field_group_confirmation" =>
 "Are you sure you want to permanently delete this custom field group?",
 
@@ -1548,5 +1551,8 @@ return [
 
 'Invalid Field Type' =>
 "Invalid Field Type",
+
+'Unable to convert current field data over to new field type' =>
+"Unable to convert current field data over to new field type."
 
 ];

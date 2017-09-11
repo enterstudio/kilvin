@@ -147,7 +147,13 @@ class Dropdown extends FieldType
         $typopts .= Cp::quickDiv('defaultBold', __('admin.select_weblog_for_field'));
         $typopts .= "<select name='settings[pulldown_weblog_field]' class='select'>".PHP_EOL;
 
-        list($weblog_id, $field_handle) = (empty($weblog_field)) ? ['',''] : explode(':', $weblog_field, 2);
+        $pieces = explode(':', $weblog_field, 2);
+
+        if (sizeof($pieces) != 2) {
+            $pieces = ['', ''];
+        }
+
+        list($weblog_id, $field_handle) = $pieces;
 
         // Fetch the field names
         foreach ($query as $row) {
