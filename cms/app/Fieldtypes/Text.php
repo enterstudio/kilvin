@@ -79,16 +79,18 @@ class Text extends FieldType
                 </tr>
                 <tr>
                     <td>
+                        <label for="text_max_length">
+                            '.__('admin.field_max_length').'
+                        </label>
                         <div class="littlePadding">
-                        <input
-                            style="width:100%"
-                            type="text"
-                            id="text_max_length"
-                            name="settings[text_max_length]"
-                            value="'.$maxlength.'"
-                        >'.
-                        ' '.__('admin.field_max_length').
-                     '</div>
+                            <input
+                                type="text"
+                                id="text_max_length"
+                                name="settings[text_max_length]"
+                                size="3"
+                                value="'.$maxlength.'"
+                            >
+                        </div>
                      </td>
                  </tr>
              </table>';

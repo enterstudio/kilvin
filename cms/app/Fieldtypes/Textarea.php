@@ -78,16 +78,18 @@ class Textarea extends FieldType
                 </tr>
                 <tr>
                     <td>
+                        <label for="text_max_length">
+                            '.__('admin.Number of Rows').'
+                        </label>
                         <div class="littlePadding">
                             <input
-                                style="width:100%"
                                 type="text"
                                 id="textarea_num_rows"
                                 name="settings[textarea_num_rows]"
+                                size="3"
                                 value="'.$num_rows.'"
-                            >'.
-                            ' '.__('admin.Number of Rows').
-                         '</div>
+                            >
+                        </div>
                      </td>
                  </tr>
              </table>';
