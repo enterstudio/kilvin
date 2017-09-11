@@ -4725,7 +4725,7 @@ EOT;
     */
     public function editField()
     {
-        $field_id = Request::input('field_id');
+        $field_id = Request::input('field_id', '');
 
         $type = ($field_id) ? 'edit' : 'new';
 
@@ -4733,7 +4733,6 @@ EOT;
         //  Variables
         // ------------------------------------
 
-        $field_id            = '';
         $field_handle        = '';
         $field_name          = '';
         $field_instructions  = '';
@@ -4759,15 +4758,17 @@ EOT;
                     'f.*',
                     'g.group_name'
                 )
-                ->firstOrFail();
+                ->first();
+
+            if (!$query) {
+                redirect('?C=WeblogAdministration&M=fields_overview');
+            }
 
             foreach ($query as $key => $val) {
                 $$key = $val;
             }
 
-            if (!empty($settings)) {
-                $settings = json_decode($settings);
-            }
+            $settings = (!empty($settings)) ? json_decode($settings) : [];
         }
 
         if (empty($group_id)) {
@@ -4798,6 +4799,9 @@ EOT;
                 $('#field_type_settings_'+field_type).css('display', 'block');
 
             });
+
+            $('select[name=field_type]').val('{$field_type}');
+            $('select[name=field_type]').trigger("change");
         });
 
 	</script>

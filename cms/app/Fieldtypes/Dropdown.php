@@ -69,7 +69,7 @@ class Dropdown extends FieldType
      * @param array $settings The Settings for this field
      * @return string
      */
-    public function settingsFormHtml($settings = [])
+    public function settingsFormHtml(array $settings = [])
     {
         extract($settings);
 

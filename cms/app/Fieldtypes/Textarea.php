@@ -68,7 +68,7 @@ class Textarea extends FieldType
      * @param array $settings The Settings for this field
      * @return string
      */
-    public function settingsFormHtml($settings = [])
+    public function settingsFormHtml(array $settings = [])
     {
         $num_rows = (!empty($settings['textarea_num_rows'])) ? $settings['textarea_num_rows'] : 10;
         return

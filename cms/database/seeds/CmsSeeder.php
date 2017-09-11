@@ -191,7 +191,7 @@ class CmsSeeder extends Seeder
 					'field_name'		  => $field[2],
 					'field_instructions'  => $field[3],
 					'settings'   		  => $field[4],
-					'field_type'          => 'textarea',
+					'field_type'          => 'Textarea',
 				]);
 		}
 
