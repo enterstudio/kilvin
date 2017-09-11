@@ -1450,9 +1450,6 @@ return [
 "rtl" =>
 "Right to Left",
 
-"direction_unavailable" =>
-"Text direction is not available for your chosen field type",
-
 'field_instructions' =>
 "Field Instructions",
 
@@ -1548,5 +1545,8 @@ return [
 
 'Field Settings' =>
 "Field Settings",
+
+'Invalid Field Type' =>
+"Invalid Field Type",
 
 ];

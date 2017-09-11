@@ -107,7 +107,7 @@ class Textarea extends FieldType
      */
     public function settingsValidationRules($incoming = [])
     {
-        $rules['settings[textarea_num_rows]'] = 'nullable|integer|max:100';
+        $rules['settings.textarea_num_rows'] = 'nullable|integer|max:100';
 
         return $rules;
     }

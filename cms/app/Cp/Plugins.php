@@ -382,7 +382,7 @@ class Plugins
 
         $message = $line.$manager->name();
 
-         session()->flash(
+        session()->flash(
             'cp-message',
             $message
         );

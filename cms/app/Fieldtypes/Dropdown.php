@@ -242,10 +242,10 @@ EOT;
      */
     public function settingsValidationRules($incoming = [])
     {
-        $rules['settings[pulldown_populate]'] = 'required|in:manual,weblog';
-        $rules['settings[pulldown_weblog_id]'] = 'integer|exists:weblogs,id';
-        $rules['settings[pulldown_list_items]'] = 'required_if:pulldown_populate,manual';
-        $rules['settings[pulldown_weblog_field]'] = 'required_if:pulldown_populate,weblog';
+        $rules['settings.pulldown_populate'] = 'required|in:manual,weblog';
+        $rules['settings.pulldown_weblog_id'] = 'integer|exists:weblogs,id';
+        $rules['settings.pulldown_list_items'] = 'required_if:pulldown_populate,manual';
+        $rules['settings.pulldown_weblog_field'] = 'required_if:pulldown_populate,weblog';
 
         return $rules;
     }

@@ -4591,15 +4591,10 @@ EOT;
     * @param string $msg
     * @return string
     */
-    public function field_manager($group_id = '', $msg = false)
+    public function field_manager($group_id = '')
     {
-        $message = ($msg == true) ? __('admin.preferences_updated') : '';
-
-        if ($group_id == '')
-        {
-            if (($group_id = Request::input('group_id')) === null OR ! is_numeric($group_id))
-            {
-                return false;
+        if ($group_id == '') {
+            if (($group_id = Request::input('group_id')) === null OR ! is_numeric($group_id)) {
             }
         }
 
@@ -4612,9 +4607,11 @@ EOT;
 
         $r  = Cp::quickDiv('tableHeading', __('admin.field_group').':'.'&nbsp;'.$query->group_name);
 
-        if ($message != '')
-        {
-            $r .= Cp::quickDiv('success-message', $message);
+
+        $cp_message = session()->pull('cp-message');
+
+        if (!empty($cp_message)) {
+            $r .= Cp::quickDiv('success-message', $cp_message);
         }
 
         $r .= Cp::table('tableBorder', '0', '10', '100%').
@@ -4645,8 +4642,6 @@ EOT;
 
         // FieldTypes!
         $field_types = Plugins::fieldTypes();
-
-        // dd($field_types);
 
         $i = 0;
 
@@ -5046,7 +5041,8 @@ EOT;
         $validator = Validator::make(request()->all(), [
             'field_handle'    => 'regex:/^[\pL\pM\pN_]+$/u',
             'field_name'      => 'required|not_in:'.implode(',',Cp::unavailableFieldNames()),
-            'group_id'        => 'required|numeric'
+            'group_id'        => 'required|numeric',
+            'field_type'      => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -5059,13 +5055,7 @@ EOT;
                 'field_name',
                 'field_instructions',
                 'field_type',
-                'field_pre_populate',
-                'field_maxlength',
-                'textarea_num_rows',
-                'field_list_items',
-                'field_pre_populate_id',
                 'is_field_required',
-                'is_field_searchable',
                 'group_id',
                 'field_id'
             ]
@@ -5073,7 +5063,6 @@ EOT;
 
         $stringable = [
             'field_instructions',
-            'field_list_items'
         ];
 
         foreach($stringable as $field) {
@@ -5084,10 +5073,6 @@ EOT;
 
         // Let DB defaults handle these if empty
         $unsettable = [
-            'field_pre_populate',
-            'field_maxlength',
-            'textarea_num_rows',
-            'field_pre_populate_id',
             'is_field_required',
         ];
 
@@ -5125,6 +5110,40 @@ EOT;
             return Cp::errorMessage(__('admin.duplicate_field_name'));
         }
 
+        // ------------------------------------
+        //  Field Type Settings Validation
+        // ------------------------------------
+
+        $field_types = Plugins::fieldTypes();
+
+        if (!isset($field_types[$data['field_type']])) {
+            return Cp::errorMessage(__('admin.Invalid Field Type'));
+        }
+
+        $details = $field_types[$data['field_type']];
+
+        $fieldType = app($details['class']);
+
+        $rules = $fieldType->settingsValidationRules(request()->all());
+
+        if (is_array($rules) && !empty($rules)) {
+
+            $validator = Validator::make(request()->all(), $rules);
+
+            if ($validator->fails()) {
+                return Cp::errorMessage(implode(BR, $validator->errors()->all()));
+            }
+        }
+
+        // ------------------------------------
+        //  Settings to JSON String
+        // ------------------------------------
+
+        $data['settings'] = null;
+
+        if (Request::filled('settings') && is_array(Request::input('settings'))) {
+            $data['settings'] = json_encode(Request::filled('settings'));
+        }
 
         // ------------------------------------
         //  Updating!
@@ -5143,28 +5162,27 @@ EOT;
                 ->where('field_id', $data['field_id'])
                 ->first();
 
-            if ($query->field_type != $data['field_type'] && $data['field_type'] == 'date') {
-                return Cp::errorMessage(__('admin.unable_to_change_to_date_field_type'));
-            }
+            // ------------------------------------
+            //  Change Field Type?
+            // ------------------------------------
 
-            // Ch-ch-ch-changing
             if ($query->field_type != $data['field_type']) {
-                switch($data['field_type'])
-                {
-                    case 'date' :
-                        Schema::table('weblog_entry_data', function($table) use ($query)
-                        {
-                            $table->timestamp('field_'.$query->field_handle)->nullable(true)->change();
-                        });
-                    break;
-                    default     :
-                        Schema::table('weblog_entry_data', function($table) use ($query)
-                        {
-                            $table->text('field_'.$query->field_handle)->nullable(true)->change();
-                        });
-                    break;
+
+                $current = Schema::getColumnType('weblog_entry_data', 'field_'.$query->field_handle);
+
+                try {
+                    Schema::table('weblog_entry_data', function($table) use ($query, $current, $fieldType)
+                    {
+                        $fieldType->columnType('field_'.$query->field_handle, $table, $current);
+                    });
+                } catch (\Exception $e) {
+                    exit($e->getMessage());
                 }
             }
+
+            // ------------------------------------
+            //  Rename Field
+            // ------------------------------------
 
             if ($query->field_handle != $data['field_handle']) {
                 Schema::table('weblog_entry_data', function($table) use ($query, $data)
@@ -5195,17 +5213,22 @@ EOT;
 
             $insert_id = DB::table('weblog_fields')->insertGetId($data);
 
-            if ($data['field_type'] == 'date') {
-                Schema::table('weblog_entry_data', function($table) use ($data)
+            // ------------------------------------
+            //  Create Field
+            // ------------------------------------
+
+            try {
+                Schema::table('weblog_entry_data', function($table) use ($query, $fieldType)
                 {
-                    $table->timestamp('field_'.$data['field_handle'])->nullable(true);
+                    $fieldType->columnType('field_'.$query->field_handle, $table, null);
                 });
-            } else {
-                Schema::table('weblog_entry_data', function($table) use ($data)
-                {
-                    $table->text('field_'.$data['field_handle'])->nullable(true);
-                });
+            } catch (\Exception $e) {
+                exit($e->getMessage());
             }
+
+            // ------------------------------------
+            //  Add to Layouts for Weblogs with Field Group
+            // ------------------------------------
 
             $weblog_ids = DB::table('weblogs')
                 ->where('field_group', $group_id)
@@ -5231,12 +5254,17 @@ EOT;
                     ]);
                 }
             }
-
        }
+
+        // ------------------------------------
+        //  We have done the impossible and that makes us mighty.
+        // ------------------------------------
 
         cms_clear_caching('all');
 
-        return $this->field_manager($group_id, $edit);
+        session()->flash('cp-message', $edit);
+
+        return redirect('?C=WeblogAdministration&M=field_manager&group_id='.$group_id)
     }
 
     // --------------------------------------------------------------------
@@ -5322,7 +5350,9 @@ EOT;
 
         cms_clear_caching('all');
 
-        return $this->field_manager($group_id);
+        session()->flash('cp-message', __('admin.field_deleted').' '.$field_name);
+
+        return redirect('?C=WeblogAdministration&M=field_manager&group_id='.$group_id)
     }
 
     // --------------------------------------------------------------------

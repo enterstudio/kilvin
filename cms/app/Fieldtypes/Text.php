@@ -108,7 +108,7 @@ class Text extends FieldType
      */
     public function settingsValidationRules($incoming = [])
     {
-        $rules['settings[text_max_length]'] = 'nullable|integer|max:100';
+        $rules['settings.text_max_length'] = 'nullable|integer|max:100';
 
         return $rules;
     }
