@@ -467,7 +467,7 @@ class CreateCmsTables extends Migration
         {
             $table->increments('weblog_layout_field_id');
             $table->integer('tab_id')->index()->unsigned();
-            $table->string('field_name', 50)->index();
+            $table->string('field_handle', 50)->index();
             $table->integer('field_order')->index()->default(1);
             $table->timestamps();
 

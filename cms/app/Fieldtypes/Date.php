@@ -67,7 +67,7 @@ class Date extends FieldType
         // valid Carbon object or a verbose error
         if ( ! $custom_date instanceof Carbon) {
             if ($custom_date !== false) {
-                throw new ValidationException($custom_date.' ('.$this->field->field_label.')');
+                throw new ValidationException($custom_date.' ('.$this->field->field_name.')');
             }
 
             throw new ValidationException(__('publish.invalid_date_formatting'));
@@ -86,7 +86,7 @@ class Date extends FieldType
      * @param array $settings The Settings for this field
      * @return string
      */
-    public function settingsFormFields($settings = [])
+    public function settingsFormHtml($settings = [])
     {
         return '';
     }

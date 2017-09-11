@@ -6,9 +6,11 @@
 
 table {
 	font-size: $font-size-base;
+	width: 100%;
 
 	tr td {
 		font-size: $font-size-base;
+		padding: 5px;
 	}
 }
 

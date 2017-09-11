@@ -210,33 +210,33 @@
 	        $(document).on('change', '.js-add-field', function(e){
 	        	e.preventDefault();
 
-	        	var target 		= $(e.currentTarget);
-	        	var field_name  = target.val();
+	        	var target 		 = $(e.currentTarget);
+	        	var field_handle = target.val();
 
-	        	if (!field_name) {
+	        	if (!field_handle) {
 	        		return;
 	        	}
 
 	        	var tab  = target.data('tab');
-	        	var field_type  = target.children('option[value='+field_name+']').data('type');
-	        	var field_label = target.children('option[value='+field_name+']').html();
+	        	var field_type = target.children('option[value='+field_handle+']').data('type');
+	        	var field_name = target.children('option[value='+field_handle+']').html();
 
 	        	var template = $('#tab_field_template').clone();
 
-	        	var attributeId = 'tab_' + tab + '_field_' + field_name;
+	        	var attributeId = 'tab_' + tab + '_field_' + field_handle;
 	        	var attributeName = 'fields[' + tab + '][]';
 
 	        	template.attr('id', attributeId);
-	        	$('input.hidden-field', template).attr('name', attributeName).attr('value', field_name);
-	        	$('.field-label', template).html(field_label);
+	        	$('input.hidden-field', template).attr('name', attributeName).attr('value', field_handle);
+	        	$('.field-label', template).html(field_name);
 	        	$('.field-type', template).html(field_type);
-	        	$('a.button', template).attr('data-tab', tab).attr('data-field', field_name);
+	        	$('a.button', template).attr('data-tab', tab).attr('data-field', field_handle);
 
 	        	$('#publish_block_' + tab + ' .add-field').before(template);
 	        	template.slideDown();
 
 	        	// Field now disabled!
-	        	$('select.js-add-field option[value='+field_name+']').attr('disabled', 'disabled');
+	        	$('select.js-add-field option[value='+field_handle+']').attr('disabled', 'disabled');
 
 	        	// Reset select
 	        	$('select.js-add-field').val('');
@@ -249,12 +249,12 @@
 	        	var target = $(e.currentTarget);
 
 	        	var tab = target.data('tab');
-	        	var field_name = target.data('field');
+	        	var field_handle = target.data('field');
 
-	        	$('#tab_' + tab + '_field_' + field_name).remove();
+	        	$('#tab_' + tab + '_field_' + field_handle).remove();
 
 	        	// Field is BACK!
-	        	$('select.js-add-field option[value='+field_name+']').removeAttr('disabled');
+	        	$('select.js-add-field option[value='+field_handle+']').removeAttr('disabled');
 	        });
 
 
@@ -264,9 +264,9 @@
 
 	        	var target = $(e.currentTarget);
 	        	var tab = target.data('tab');
-	        	var field_name = target.data('field');
+	        	var field_handle = target.data('field');
 
-	        	$('#tab_' + tab + '_field_' + field_name).moveUp();
+	        	$('#tab_' + tab + '_field_' + field_handle).moveUp();
 	        });
 
 	        // Move Field up Tab
@@ -275,9 +275,9 @@
 
 	        	var target = $(e.currentTarget);
 	        	var tab = target.data('tab');
-	        	var field_name = target.data('field');
+	        	var field_handle = target.data('field');
 
-	        	$('#tab_' + tab + '_field_' + field_name).moveDown();
+	        	$('#tab_' + tab + '_field_' + field_handle).moveDown();
 	        });
 
 	        $(document).on('click', '.js-tab-pulldown', function(e) {
@@ -395,8 +395,8 @@
 
 	        	// Find fields in tab and bring back!
 	        	$('#publish_block_' + tab_handle + ' .js-field-remove').each(function(item) {
-	        		var field_name = $(this).data('field');
-	        		$('select.js-add-field option[value='+field_name+']').removeAttr('disabled');
+	        		var field_handle = $(this).data('field');
+	        		$('select.js-add-field option[value='+field_handle+']').removeAttr('disabled');
 	        	});
 
 	        	// Now delete tab and tab block

@@ -109,7 +109,7 @@ abstract class FieldType
      * @param array $settings The Settings for this field
      * @return string
      */
-    public function settingsFormFields($settings = [])
+    public function settingsFormHtml($settings = [])
     {
         Cp::footerJavascript('');
         return '';

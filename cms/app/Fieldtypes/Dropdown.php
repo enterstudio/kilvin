@@ -69,7 +69,7 @@ class Dropdown extends FieldType
      * @param array $settings The Settings for this field
      * @return string
      */
-    public function settingsFormFields($settings = [])
+    public function settingsFormHtml($settings = [])
     {
         extract($settings);
 
@@ -82,7 +82,7 @@ class Dropdown extends FieldType
         //  Create the "populate" radio options
         // ------------------------------------
 
-        $typemenu .= Cp::quickDiv(
+        $typemenu = Cp::quickDiv(
             'default',
             '<label>'.
                 Cp::input_radio(
@@ -112,7 +112,7 @@ class Dropdown extends FieldType
         //  Populate Manually
         // ------------------------------------
 
-        $display = ($poulate_type == 'manual') ? 'block' : 'none';
+        $display = ($populate_type == 'manual') ? 'block' : 'none';
 
         $typopts = '<div id="pulldown_populate_manual" style="display: '.$display.'; padding:0; margin:5px 0 0 0;">';
 
@@ -138,7 +138,7 @@ class Dropdown extends FieldType
         //  Populate via an existing field
         // ------------------------------------
 
-        $display = ($poulate_type == 'weblog') ? 'block' : 'none';
+        $display = ($populate_type == 'weblog') ? 'block' : 'none';
         $typopts .= '<div id="pulldown_populate_weblog" style="display: '.$display.'; padding:0; margin:5px 0 0 0;">';
 
         $query = DB::table('weblogs')
@@ -150,25 +150,25 @@ class Dropdown extends FieldType
         $typopts .= Cp::quickDiv('littlePadding', Cp::quickDiv('defaultBold', __('admin.select_weblog_for_field')));
         $typopts .= "<select name='settings[pulldown_weblog_field]' class='select'>".PHP_EOL;
 
-        list($weblog_id, $field_name) = explode(':', $weblog_field);
+        list($weblog_id, $field_handel) = (empty($weblog_field)) ? ['',''] : explode(':', $weblog_field, 2);
 
         // Fetch the field names
         foreach ($query as $row) {
             $rez = DB::table('weblog_fields')
                 ->where('group_id', $row->field_group)
-                ->orderBy('field_label', 'asc')
-                ->select('field_id', 'field_name', 'field_label')
+                ->orderBy('field_name', 'asc')
+                ->select('field_id', 'field_handle', 'field_name')
                 ->get();
 
             $typopts .= Cp::input_select_option('', $row->weblog_title);
 
             foreach ($rez as $frow)
             {
-                $sel = ($weblog_id == $row->weblog_id AND $field_name == $frow->field_name) ? 1 : 0;
+                $sel = ($weblog_id == $row->weblog_id AND $field_handle == $frow->field_handle) ? 1 : 0;
 
                 $typopts .= Cp::input_select_option(
-                    $row->weblog_id.'_'.$frow->field_name,
-                    NBS.'-'.NBS.$frow->field_label,
+                    $row->weblog_id.'_'.$frow->field_handle,
+                    NBS.'-'.NBS.$frow->field_name,
                     $sel);
             }
         }
@@ -177,7 +177,14 @@ class Dropdown extends FieldType
         $typopts .= '</div>'.PHP_EOL;
 
 
-        $r  = '<table>';
+        $r  = '<table class="tableBorder">';
+        $r .=
+            '<tr>'.PHP_EOL.
+                Cp::td('tableHeading', '', '2').
+                    __('admin.Field Settings').
+                '</td>'.PHP_EOL.
+            '</tr>'.PHP_EOL;
+
         $r .= '<tr>'.PHP_EOL;
         $r .= Cp::tableCell('', $typemenu, '50%', 'top');
         $r .= Cp::tableCell('', $typopts, '50%');

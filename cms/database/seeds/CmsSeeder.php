@@ -232,21 +232,21 @@ class CmsSeeder extends Seeder
 		DB::table('weblog_layout_fields')
 			->insert([
 				'tab_id' => 1,
-				'field_name' => 'excerpt',
+				'field_handle' => 'excerpt',
 				'field_order' => 1
 			]);
 
 		DB::table('weblog_layout_fields')
 			->insert([
 				'tab_id' => 1,
-				'field_name' => 'body',
+				'field_handle' => 'body',
 				'field_order' => 2
 			]);
 
 		DB::table('weblog_layout_fields')
 			->insert([
 				'tab_id' => 1,
-				'field_name' => 'extended',
+				'field_handle' => 'extended',
 				'field_order' => 3
 			]);
 

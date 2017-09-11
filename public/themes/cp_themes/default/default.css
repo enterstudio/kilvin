@@ -1170,10 +1170,12 @@ since IE8 won't execute CSS that contains a CSS3 selector.
 
 table {
   font-size: 12px;
+  width: 100%;
 }
 
 table tr td {
   font-size: 12px;
+  padding: 5px;
 }
 
 .tableBorder {

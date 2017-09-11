@@ -986,7 +986,7 @@ EOT;
             ->where('weblog_layout_tabs.weblog_id', $weblog_id)
             ->orderBy('weblog_layout_tabs.tab_order')
             ->orderBy('weblog_layout_fields.field_order')
-            ->orderBy('weblog_layout_fields.field_name')
+            ->orderBy('weblog_layout_fields.field_handle')
             ->get();
 
         // ------------------------------------
@@ -994,11 +994,11 @@ EOT;
         // ------------------------------------
 
         $available_fields = DB::table('weblog_fields')
-            ->select('field_name', 'field_label', 'field_type')
+            ->select('field_handle', 'field_name', 'field_type')
             ->where('group_id', $weblog_query->field_group)
-            ->orderBy('field_label')
+            ->orderBy('field_name')
             ->get()
-            ->keyBy('field_name')
+            ->keyBy('field_handle')
             ->map(function ($item, $key) {
                 $item->used = false;
                 return $item;
@@ -1018,9 +1018,9 @@ EOT;
                 $publish_tabs[$handle] = $row->tab_name;
             }
 
-            if (isset($available_fields[$row->field_name])) {
-                $layout[$row->tab_id][$row->field_name] = $available_fields[$row->field_name];
-                $available_fields[$row->field_name]->used = true;
+            if (isset($available_fields[$row->field_handle])) {
+                $layout[$row->tab_id][$row->field_handle] = $available_fields[$row->field_handle];
+                $available_fields[$row->field_handle]->used = true;
             }
         }
 
@@ -1108,13 +1108,13 @@ EOT;
         // ------------------------------------
 
         $field_query = DB::table('weblog_fields')
-            ->select('field_name', 'field_label', 'field_type')
+            ->select('field_name', 'field_handle', 'field_type')
             ->where('group_id', $weblog_query->field_group)
-            ->orderBy('field_label')
+            ->orderBy('field_name')
             ->get();
 
         $available_fields = $field_query
-            ->keyBy('field_name')
+            ->keyBy('field_handle')
             ->toArray();
 
         // ------------------------------------
@@ -1160,9 +1160,9 @@ EOT;
 
             $order = 0;
 
-            foreach($tab_fields as $field_name) {
+            foreach($tab_fields as $field_handle) {
 
-                if (!isset($available_fields[$field_name])) {
+                if (!isset($available_fields[$field_handle])) {
                     continue;
                 }
 
@@ -1170,7 +1170,7 @@ EOT;
                     ->insertGetId(
                         [
                             'tab_id'     => $db_tabs[$handle],
-                            'field_name' => $field_name,
+                            'field_handle' => $field_handle,
                             'field_order'  => $order++
                         ]
                     );
@@ -4560,13 +4560,13 @@ EOT;
 
         $query = DB::table('weblog_fields')
             ->where('group_id', $group_id)
-            ->select('field_id', 'field_type', 'field_name')
+            ->select('field_id', 'field_type', 'field_handle')
             ->get();
 
         foreach ($query as $row)
         {
             Schema::table('weblog_entry_data', function($table) use ($row) {
-                $table->dropColumn('field_'.$row->field_name);
+                $table->dropColumn('field_'.$row->field_handle);
             });
         }
 
@@ -4619,18 +4619,18 @@ EOT;
 
         $r .= Cp::table('tableBorder', '0', '10', '100%').
               '<tr>'.PHP_EOL.
-              Cp::td('tableHeadingAlt', '40%', '1').__('admin.field_label').'</td>'.PHP_EOL.
-              Cp::td('tableHeadingAlt', '20%', '1').__('admin.field_name').'</td>'.PHP_EOL.
+              Cp::td('tableHeadingAlt', '40%', '1').__('admin.field_name').'</td>'.PHP_EOL.
+              Cp::td('tableHeadingAlt', '20%', '1').__('admin.field_handle').'</td>'.PHP_EOL.
               Cp::td('tableHeadingAlt', '40%', '2').__('admin.field_type').'</td>'.PHP_EOL.
               '</tr>'.PHP_EOL;
 
         $query = DB::table('weblog_fields')
             ->where('group_id', $group_id)
-            ->orderBy('field_label')
+            ->orderBy('field_name')
             ->select(
                 'field_id',
+                'field_handle',
                 'field_name',
-                'field_label',
                 'field_type'
             )->get();
 
@@ -4663,7 +4663,7 @@ EOT;
                             BASE.'?C=WeblogAdministration'.
                                 AMP.'M=editField'.
                                 AMP.'field_id='.$row->field_id,
-                            $row->field_label
+                            $row->field_name
                         )
                     )
                 );
@@ -4738,6 +4738,7 @@ EOT;
         $field_name          = '';
         $field_instructions  = '';
         $field_type          = '';
+        $settings            = [];
 
         $is_field_required   = false;
 
@@ -4763,6 +4764,10 @@ EOT;
             foreach ($query as $key => $val) {
                 $$key = $val;
             }
+
+            if (!empty($settings)) {
+                $settings = json_decode($settings);
+            }
         }
 
         if (empty($group_id)) {
@@ -4782,14 +4787,19 @@ EOT;
         $js = <<<EOT
 	<script type="text/javascript">
 
-        function displayFieldTypeOptions(id)
-        {
-        	var field_type = $('select[name=field_type]').val();
+         $( document ).ready(function() {
+            $('select[name=field_type]').change(function(e) {
+                e.preventDefault();
 
-            $('.field-option').css('display', 'none');
+                var field_type = $(this).val();
 
-            $('#field_type_settings_'+field_type).css('display', 'block');
-        }
+                $('.field-option').css('display', 'none');
+
+                $('#field_type_settings_'+field_type).css('display', 'block');
+
+            });
+        });
+
 	</script>
 EOT;
 
@@ -4821,7 +4831,7 @@ EOT;
         $i = 0;
 
         // ------------------------------------
-        //  Field Label
+        //  Field Name
         // ------------------------------------
 
         $r .= '<tr>'.PHP_EOL;
@@ -4829,11 +4839,11 @@ EOT;
             '',
             Cp::quickSpan(
                 'defaultBold',
-                Cp::required().__('admin.field_label')
+                Cp::required().__('admin.field_name')
             ).
             Cp::quickDiv(
                 '',
-                __('admin.field_label_info')
+                __('admin.field_name_info')
             ),
             '50%'
         );
@@ -4854,7 +4864,7 @@ EOT;
         $r .= '</tr>'.PHP_EOL;
 
         // ------------------------------------
-        //  Field name
+        //  Field handle
         // ------------------------------------
 
         $r .= '<tr>'.PHP_EOL;
@@ -4862,11 +4872,11 @@ EOT;
             '',
             Cp::quickSpan(
                 'defaultBold',
-                Cp::required().__('admin.field_name')
+                Cp::required().__('admin.field_handle')
             ).
             Cp::quickDiv(
                 'littlePadding',
-                __('admin.field_name_explanation')
+                __('admin.field_handle_explanation')
             ),
             '50%'
         );
@@ -4958,13 +4968,14 @@ EOT;
         $r .= '<tr>'.PHP_EOL.'<td><strong>'.__('admin.Field Type').'</strong></td>';
 
         $r .= '<td>';
-        $r .= "<select name='field_type' class='select'>";
+        $r .= '<select name="field_type" class="select">';
+        $r .= Cp::input_select_option('', __('admin.Choose Field Type'));
 
 
         $field_types = Plugins::fieldTypes();
 
         foreach($field_types as $name => $details) {
-            $r .= Cp::input_select_option($details['class'], $name);
+            $r .= Cp::input_select_option($details['class_name'], $name);
         }
 
         $r .= Cp::input_select_footer();
@@ -4972,15 +4983,29 @@ EOT;
         $r .= '</td></tr>'.PHP_EOL;
 
         // ------------------------------------
-        //  Close Default Fields
+        //  Close Top Area
         // ------------------------------------
 
         $r .= '</table>'.PHP_EOL;
 
+        // ------------------------------------
+        //  Create the Field Type Forms!
+        // ------------------------------------
+
+        foreach($field_types as $name => $details) {
+
+            $r .= '<div id="field_type_settings_'.$details['class_name'].'" class="field-option" style="display:none;">';
+
+            $r .= app($details['class'])->settingsFormHtml($settings);
+
+            $r .= '</div>';
+        }
 
         // ------------------------------------
         //  Submit
         // ------------------------------------
+
+        $r .= BR;
 
         if ($type == 'edit') {
             $r .= Cp::input_submit(__('cp.update'));
@@ -5015,9 +5040,9 @@ EOT;
         // ------------------------------------
 
         $validator = Validator::make(request()->all(), [
-            'field_name'       => 'regex:/^[\pL\pM\pN_]+$/u',
-            'field_label'      => 'required|not_in:'.implode(',',Cp::unavailableFieldNames()),
-            'group_id'         => 'required|numeric'
+            'field_handle'    => 'regex:/^[\pL\pM\pN_]+$/u',
+            'field_name'      => 'required|not_in:'.implode(',',Cp::unavailableFieldNames()),
+            'group_id'        => 'required|numeric'
         ]);
 
         if ($validator->fails()) {
@@ -5026,7 +5051,7 @@ EOT;
 
         $data = Request::only(
             [
-                'field_label',
+                'field_handle',
                 'field_name',
                 'field_instructions',
                 'field_type',
@@ -5075,6 +5100,17 @@ EOT;
         // ------------------------------------
 
         $query = DB::table('weblog_fields')
+            ->where('field_handle', $data['field_handle']);
+
+        if ($edit === true) {
+            $query->where('field_id', '!=', $data['field_id']);
+        }
+
+        if ($query->count() > 0) {
+            return Cp::errorMessage(__('admin.duplicate_field_handle'));
+        }
+
+        $query = DB::table('weblog_fields')
             ->where('field_name', $data['field_name']);
 
         if ($edit === true) {
@@ -5085,33 +5121,6 @@ EOT;
             return Cp::errorMessage(__('admin.duplicate_field_name'));
         }
 
-        $query = DB::table('weblog_fields')
-            ->where('field_label', $data['field_label']);
-
-        if ($edit === true) {
-            $query->where('field_id', '!=', $data['field_id']);
-        }
-
-        if ($query->count() > 0) {
-            return Cp::errorMessage(__('admin.duplicate_field_name'));
-        }
-
-        // ------------------------------------
-        //  Data ch-ch-changes
-        // ------------------------------------
-
-        if (!empty($data['field_list_items'])) {
-            $data['field_list_items'] = convert_quotes($data['field_list_items']);
-        }
-
-        if ($data['field_pre_populate'] == 'y') {
-            $x = explode('_', $data['field_pre_populate_id']);
-
-            $data['field_pre_blog_id']    = $x[0];
-            $data['field_pre_field_name'] = $x[1];
-        }
-
-        unset($data['field_pre_populate_id']);
 
         // ------------------------------------
         //  Updating!
@@ -5126,7 +5135,7 @@ EOT;
             unset($data['group_id']);
 
             $query = DB::table('weblog_fields')
-                ->select('field_type', 'field_name')
+                ->select('field_type', 'field_handle')
                 ->where('field_id', $data['field_id'])
                 ->first();
 
@@ -5141,28 +5150,28 @@ EOT;
                     case 'date' :
                         Schema::table('weblog_entry_data', function($table) use ($query)
                         {
-                            $table->timestamp('field_'.$query->field_name)->nullable(true)->change();
+                            $table->timestamp('field_'.$query->field_handle)->nullable(true)->change();
                         });
                     break;
                     default     :
                         Schema::table('weblog_entry_data', function($table) use ($query)
                         {
-                            $table->text('field_'.$query->field_name)->nullable(true)->change();
+                            $table->text('field_'.$query->field_handle)->nullable(true)->change();
                         });
                     break;
                 }
             }
 
-            if ($query->field_name != $data['field_name']) {
+            if ($query->field_handle != $data['field_handle']) {
                 Schema::table('weblog_entry_data', function($table) use ($query, $data)
                 {
-                    $table->renameColumn('field_'.$query->field_name, 'field_'.$data['field_name']);
+                    $table->renameColumn('field_'.$query->field_handle, 'field_'.$data['field_handle']);
                 });
 
                 DB::table('weblog_layout_fields')
-                    ->where('field_name', $query->field_name)
+                    ->where('field_handle', $query->field_handle)
                     ->update([
-                        'field_name' => $data['field_name'],
+                        'field_handle' => $data['field_handle'],
                     ]);
             }
 
@@ -5185,12 +5194,12 @@ EOT;
             if ($data['field_type'] == 'date') {
                 Schema::table('weblog_entry_data', function($table) use ($data)
                 {
-                    $table->timestamp('field_'.$data['field_name'])->nullable(true);
+                    $table->timestamp('field_'.$data['field_handle'])->nullable(true);
                 });
             } else {
                 Schema::table('weblog_entry_data', function($table) use ($data)
                 {
-                    $table->text('field_'.$data['field_name'])->nullable(true);
+                    $table->text('field_'.$data['field_handle'])->nullable(true);
                 });
             }
 
@@ -5213,7 +5222,7 @@ EOT;
                     DB::table('weblog_layout_fields')
                     ->insert([
                         'tab_id' => $tab_id,
-                        'field_name' => $data['field_name'],
+                        'field_handle' => $data['field_handle'],
                         'field_order' => $max+1
                     ]);
                 }
@@ -5240,7 +5249,7 @@ EOT;
         }
 
         $query = DB::table('weblog_fields')
-            ->select('field_label')
+            ->select('field_name')
             ->where('field_id', $field_id)
             ->first();
 
@@ -5254,7 +5263,7 @@ EOT;
                 'url'       => 'C=WeblogAdministration'.AMP.'M=delete_field'.AMP.'field_id='.$field_id,
                 'heading'   => 'admin.delete_field',
                 'message'   => 'admin.delete_field_confirmation',
-                'item'      => $query->field_label,
+                'item'      => $query->field_name,
                 'extra'     => '',
                 'hidden'    => array('field_id' => $field_id)
             ]
@@ -5280,21 +5289,21 @@ EOT;
 
         $query = DB::table('weblog_fields')
             ->where('field_id', $field_id)
-            ->select('group_id', 'field_type', 'field_label', 'field_name')
+            ->select('group_id', 'field_type', 'field_name', 'field_handle')
             ->first();
 
         $group_id = $query->group_id;
-        $field_label = $query->field_label;
-        $field_type = $query->field_type;
         $field_name = $query->field_name;
+        $field_type = $query->field_type;
+        $field_handle = $query->field_handle;
 
-        Schema::table('weblog_entry_data', function($table) use ($field_name)
+        Schema::table('weblog_entry_data', function($table) use ($field_handle)
         {
-            if (!Schema::hasColumn('weblog_entry_data', 'field_'.$field_name)) {
+            if (!Schema::hasColumn('weblog_entry_data', 'field_'.$field_handle)) {
                 return;
             }
 
-            $table->dropColumn('field_'.$field_name);
+            $table->dropColumn('field_'.$field_handle);
         });
 
         DB::table('weblog_fields')
@@ -5302,10 +5311,10 @@ EOT;
             ->delete();
 
         DB::table('weblog_layout_fields')
-            ->where('field_name', $field_name)
+            ->where('field_handle', $field_handle)
             ->delete();
 
-        Cp::log(__('admin.field_deleted').'&nbsp;'.$field_label);
+        Cp::log(__('admin.field_deleted').' '.$field_name);
 
         cms_clear_caching('all');
 

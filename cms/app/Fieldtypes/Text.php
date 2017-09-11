@@ -68,17 +68,20 @@ class Text extends FieldType
      * @param array $settings The Settings for this field
      * @return string
      */
-    public function settingsFormFields($settings = [])
+    public function settingsFormHtml($settings = [])
     {
         $maxlength = (!empty($settings['text_max_length'])) ? $settings['text_max_length'] : 10;
 
         return
-            '<table>
+            '<table class="tableBorder">
+                <tr>
+                    <td class="tableHeading" colspan="2">'.__('admin.Field Settings').'</td>
+                </tr>
                 <tr>
                     <td>
                         <div class="littlePadding">
                         <input
-                            style="width:100%""
+                            style="width:100%"
                             type="text"
                             id="text_max_length"
                             name="settings[text_max_length]"

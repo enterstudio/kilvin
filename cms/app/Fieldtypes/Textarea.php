@@ -68,22 +68,25 @@ class Textarea extends FieldType
      * @param array $settings The Settings for this field
      * @return string
      */
-    public function settingsFormFields($settings = [])
+    public function settingsFormHtml($settings = [])
     {
         $num_rows = (!empty($settings['textarea_num_rows'])) ? $settings['textarea_num_rows'] : 10;
         return
-            '<table>
+            '<table class="tableBorder">
+                <tr>
+                    <td class="tableHeading" colspan="2">'.__('admin.Field Settings').'</td>
+                </tr>
                 <tr>
                     <td>
                         <div class="littlePadding">
                             <input
-                                style="width:100%""
+                                style="width:100%"
                                 type="text"
                                 id="textarea_num_rows"
                                 name="settings[textarea_num_rows]"
                                 value="'.$num_rows.'"
                             >'.
-                            ' '.__('admin.Textarea Row').
+                            ' '.__('admin.Number of Rows').
                          '</div>
                      </td>
                  </tr>

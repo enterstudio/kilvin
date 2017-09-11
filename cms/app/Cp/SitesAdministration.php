@@ -814,13 +814,13 @@ class SitesAdministration
 
         $fields = DB::table('weblog_fields')
             ->where('site_id', $site_id)
-            ->pluck('field_name')
+            ->pluck('field_handle')
             ->all();
 
-        foreach($fields as $field_name) {
-            Schema::table('weblog_entry_data', function($table) use ($field_name)
+        foreach($fields as $field_handle) {
+            Schema::table('weblog_entry_data', function($table) use ($field_handle)
             {
-                $table->dropColumn('field_'.$field_name);
+                $table->dropColumn('field_'.$field_handle);
             });
         }
         // ------------------------------------
@@ -1294,14 +1294,14 @@ class SitesAdministration
                         foreach($fquery as $row)
                         {
                             $row                = (array) $row;
-                            $old_field_name     = $row['field_name'];
+                            $old_field_handle   = $row['field_handle'];
 
                             $row['site_id']     = $site_id;
                             $row['field_id']    = null;
                             $row['group_id']    = $new_group_id;
 
                             // Uniqueness checks
-                            foreach(['field_name', 'field_label'] AS $check) {
+                            foreach(['field_name', 'field_handle'] AS $check) {
                                 $count = DB::table('weblog_fields')
                                     ->where('site_id', $site_id)
                                     ->where($check, 'LIKE', $row[$check].'%')
@@ -1315,8 +1315,8 @@ class SitesAdministration
 
                             $new_field_id = DB::table('weblog_fields')->insert($row);
 
-                            $field_name = $row['field_name'];
-                            $field_match[$old_field_name] = $row['field_name'];
+                            $field_handle = $row['field_handle'];
+                            $field_match[$old_field_handle] = $row['field_handle'];
 
                             // ------------------------------------
                             //  Weblog Data Field Creation, Whee!
@@ -1325,13 +1325,13 @@ class SitesAdministration
                             switch($row['field_type'])
                             {
                                 case 'date' :
-                                    Schema::table('weblog_entry_data', function($table) use ($field_name) {
-                                        $table->timestamp('field_'.$field_name)->nullable(true);
+                                    Schema::table('weblog_entry_data', function($table) use ($field_handle) {
+                                        $table->timestamp('field_'.$field_handle)->nullable(true);
                                     });
                                 break;
                                 default:
-                                    Schema::table('weblog_entry_data', function($table) use ($field_name) {
-                                        $table->text('field_'.$field_name)->nullable(true);
+                                    Schema::table('weblog_entry_data', function($table) use ($field_handle) {
+                                        $table->text('field_'.$field_handle)->nullable(true);
                                     });
                                 break;
                             }
@@ -1470,7 +1470,7 @@ class SitesAdministration
                 foreach($moved as $weblog_id => $field_group)
                 {
                     $query = DB::table('weblog_fields')
-                        ->select('field_id', 'field_name', 'field_type')
+                        ->select('field_id', 'field_name', 'field_handle', 'field_type')
                         ->where('group_id', $field_group)
                         ->get()
                         ->toArray();
@@ -1483,7 +1483,7 @@ class SitesAdministration
                     {
                         foreach($query as $row)
                         {
-                            if ( ! isset($field_match[$row['field_name']])) {
+                            if ( ! isset($field_match[$row['field_handle']])) {
                                 continue;
                             }
 
@@ -1493,9 +1493,9 @@ class SitesAdministration
                                 ->update(
                                     [
                                         DB::raw(
-                                            "`field_".$field_match[$row['field_name']]."`".
+                                            "`field_".$field_match[$row['field_handle']]."`".
                                             " = ".
-                                            "`field_".$row['field_name']."`"
+                                            "`field_".$row['field_handle']."`"
                                         )
                                     ]
                                 );
@@ -1505,7 +1505,7 @@ class SitesAdministration
                                 ->where('weblog_id', $weblog_id)
                                 ->update(
                                     [
-                                        'field_'.$row['field_name'] = ''
+                                        'field_'.$row['field_handle'] = ''
                                     ]
                                 );
 

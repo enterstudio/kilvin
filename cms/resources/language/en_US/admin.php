@@ -690,7 +690,7 @@ return [
 "sort_asc" =>
 "Ascending Order",
 
-"field_label_info" =>
+"field_name_info" =>
 "This is the name that will appear in the PUBLISH page",
 
 "Date" =>
@@ -1139,13 +1139,13 @@ return [
 "create_new_custom_field" =>
 "Create a New Custom Field",
 
-"field_label" =>
+"field_name" =>
 "Field Label",
 
-"field_name" =>
-"Field Name",
+"field_handle" =>
+"Field Handle",
 
-"field_name_explanation" =>
+"field_handle_explanation" =>
 "Single word, no spaces, underscores are allowed",
 
 "field_type" =>
@@ -1157,8 +1157,8 @@ return [
 "field_max_length_cont" =>
 "If you are using a \"text\" field type",
 
-"Textarea Rows" =>
-"Textarea Rows",
+"Number of Rows" =>
+"Number of Rows",
 
 "dropdown_sub" =>
 "If you are using a \"drop-down\" field type",
@@ -1199,17 +1199,17 @@ return [
 'site_id_mismatch' =>
 'You are not logged into the correct Site to perform this action',
 
+"no_field_handel" =>
+"You must submit a field handel",
+
 "no_field_name" =>
 "You must submit a field name",
-
-"no_field_label" =>
-"You must submit a field label",
 
 "invalid_characters" =>
 "The field name you submitted contains invalid characters",
 
-"duplicate_field_name" =>
-"The field name you chose is already taken",
+"duplicate_field_handel" =>
+"The field handle you chose is already taken",
 
 "taken_field_group_name" =>
 "The name you have chosen is already taken",
@@ -1542,5 +1542,11 @@ return [
 
 'Layout Updated' =>
 "Layout Updated!",
+
+'Choose Field Type' =>
+"Choose Field Type",
+
+'Field Settings' =>
+"Field Settings",
 
 ];

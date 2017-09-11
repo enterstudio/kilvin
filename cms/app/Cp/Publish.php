@@ -405,9 +405,9 @@ class Publish
 
         $field_query = DB::table('weblog_fields')
                 ->where('group_id', $field_group)
-                ->orderBy('field_label')
+                ->orderBy('field_name')
                 ->get()
-                ->keyBy('field_name')
+                ->keyBy('field_handle')
                 ->toArray();
 
         // ------------------------------------
@@ -421,8 +421,8 @@ class Publish
                 $publish_tabs[$row->tab_id] = $row->tab_name;
             }
 
-            if (isset($field_query[$row->field_name])) {
-                $layout[$row->tab_id][$row->field_name] = $field_query[$row->field_name];
+            if (isset($field_query[$row->field_handle])) {
+                $layout[$row->tab_id][$row->field_handle] = $field_query[$row->field_handle];
             }
         }
 
@@ -600,8 +600,6 @@ EOT;
         // ------------------------------------
         //  Layout/Field TABs
         // ------------------------------------
-
-        // $layout[$row->tab][$frow->field_name] = $frow;
 
         foreach($layout as $tab => $fields) {
 
@@ -920,8 +918,8 @@ EOT;
         $r = '';
         $field_data = '';
 
-        if (isset($incoming['field_'.$row->field_name])) {
-            $field_data = $incoming['field_'.$row->field_name];
+        if (isset($incoming['field_'.$row->field_handle])) {
+            $field_data = $incoming['field_'.$row->field_handle];
         }
 
         $required = ($row->is_field_required == 'n') ? '' : Cp::required().NBS;
@@ -937,7 +935,7 @@ EOT;
         {
             $r .= Cp::quickDiv(
                 'littlePadding',
-                '<h5>'.$required.$row->field_label.'</h5>'.
+                '<h5>'.$required.$row->field_name.'</h5>'.
                  Cp::quickSpan(
                     'defaultBold',
                     __('publish.instructions')
@@ -947,7 +945,7 @@ EOT;
         } else {
              $r .= Cp::quickDiv(
                 'littlePadding',
-                '<h5>'.$required.$row->field_label.'</h5>'
+                '<h5>'.$required.$row->field_name.'</h5>'
             );
         }
 
@@ -1575,15 +1573,15 @@ EOT;
 
          $query = DB::table('weblog_fields')
             ->where('is_field_required', 'y')
-            ->select('field_name', 'field_label')
+            ->select('field_name', 'field_handle')
             ->get();
 
          if ($query->count() > 0)
          {
             foreach ($query as $row)
             {
-                if (empty($incoming['field_'.$row->field_name])) {
-                    $error[] = __('publish.The following field is required').NBS.$row->field_label;
+                if (empty($incoming['field_'.$row->field_handle])) {
+                    $error[] = __('publish.The following field is required').NBS.$row->field_name;
                 }
             }
          }
@@ -1594,23 +1592,23 @@ EOT;
 
         $query = DB::table('weblog_fields')
             ->where('field_type', 'date')
-            ->select('field_name', 'field_name', 'field_label')
+            ->select('field_name', 'field_handle')
             ->get();
 
         foreach ($query as $row) {
-            if (!empty($incoming['field_'.$row->field_name])) {
-                $custom_date = Localize::humanReadableToUtcCarbon($incoming['field_'.$row->field_name]);
+            if (!empty($incoming['field_'.$row->field_handle])) {
+                $custom_date = Localize::humanReadableToUtcCarbon($incoming['field_'.$row->field_handle]);
 
                 // Localize::humanReadableToUtcCarbon() returns either a
                 // valid Carbon object or a verbose error
                 if ( ! $custom_date instanceof Carbon) {
                     if ($custom_date !== false) {
-                        $error[] = $custom_date.NBS.'('.$row->field_label.')';
+                        $error[] = $custom_date.NBS.'('.$row->field_name.')';
                     } else {
                         $error[] = __('publish.invalid_date_formatting');
                     }
                 } else {
-                    $incoming['field_'.$row->field_name] = $custom_date;
+                    $incoming['field_'.$row->field_handle] = $custom_date;
                 }
             }
         }
@@ -2784,7 +2782,7 @@ EOT;
             $fields = DB::table('weblog_fields')
                 ->whereIn('group_id', $field_groups)
                 ->whereIn('field_type', ['text', 'textarea', 'select'])
-                ->pluck('field_name')
+                ->pluck('field_handle')
                 ->all();
         }
 
