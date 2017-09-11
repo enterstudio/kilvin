@@ -4768,7 +4768,7 @@ EOT;
                 $$key = $val;
             }
 
-            $settings = (!empty($settings)) ? json_decode($settings) : [];
+            $settings = (!empty($settings)) ? json_decode($settings, true) : [];
         }
 
         if (empty($group_id)) {

@@ -73,8 +73,7 @@ class Dropdown extends FieldType
     {
         extract($settings);
 
-        $populate_type = $pulldown_populate ?? 'manual';
-        $weblog_id     = $pulldown_weblog_id ?? null;
+        $populate_type = $pulldown_populate_type ?? 'manual';
         $list_items    = $pulldown_list_items ?? '';
         $weblog_field  = $pulldown_weblog_field ?? '';
 
@@ -92,7 +91,7 @@ class Dropdown extends FieldType
                     ' class="js-pulldown-populate"'
                 ).
                 ' '.
-                __('admin.field_populate_manually').
+                __('admin.Populate dropdown manually').
             '</label>');
 
         $typemenu .= Cp::quickDiv(
@@ -105,16 +104,14 @@ class Dropdown extends FieldType
                     ' class="js-pulldown-populate"'
                 ).
                 ' '.
-                __('admin.field_populate_from_blog').
+                __('admin.Populate dropdown from weblog field').
             '</label>');
 
         // ------------------------------------
         //  Populate Manually
         // ------------------------------------
 
-        $display = ($populate_type == 'manual') ? 'block' : 'none';
-
-        $typopts = '<div id="pulldown_populate_manual" style="display: '.$display.'; padding:0; margin:5px 0 0 0;">';
+        $typopts = '<div id="pulldown_populate_manual" style="display: none;">';
 
         $typopts .= Cp::quickDiv(
                 'defaultBold',
@@ -129,7 +126,8 @@ class Dropdown extends FieldType
                 $list_items,
                 10,
                 'textarea',
-                '400px'
+                '400px',
+                ' placeholder="value:Displayed Value"'
             );
 
         $typopts .= '</div>'.PHP_EOL;
@@ -138,8 +136,7 @@ class Dropdown extends FieldType
         //  Populate via an existing field
         // ------------------------------------
 
-        $display = ($populate_type == 'weblog') ? 'block' : 'none';
-        $typopts .= '<div id="pulldown_populate_weblog" style="display: '.$display.'; padding:0; margin:5px 0 0 0;">';
+        $typopts .= '<div id="pulldown_populate_weblog" style="display: none;">';
 
         $query = DB::table('weblogs')
             ->orderBy('weblog_title', 'asc')
@@ -147,10 +144,10 @@ class Dropdown extends FieldType
             ->get();
 
         // Create the drop-down menu
-        $typopts .= Cp::quickDiv('littlePadding', Cp::quickDiv('defaultBold', __('admin.select_weblog_for_field')));
+        $typopts .= Cp::quickDiv('defaultBold', __('admin.select_weblog_for_field'));
         $typopts .= "<select name='settings[pulldown_weblog_field]' class='select'>".PHP_EOL;
 
-        list($weblog_id, $field_handel) = (empty($weblog_field)) ? ['',''] : explode(':', $weblog_field, 2);
+        list($weblog_id, $field_handle) = (empty($weblog_field)) ? ['',''] : explode(':', $weblog_field, 2);
 
         // Fetch the field names
         foreach ($query as $row) {
@@ -160,7 +157,11 @@ class Dropdown extends FieldType
                 ->select('field_id', 'field_handle', 'field_name')
                 ->get();
 
-            $typopts .= Cp::input_select_option('', $row->weblog_title);
+            if ($rez->count() == 0) {
+                continue;
+            }
+
+            $typopts .= '<optgroup label="'.escape_attribute($row->weblog_title).'">';
 
             foreach ($rez as $frow)
             {
@@ -168,16 +169,52 @@ class Dropdown extends FieldType
 
                 $typopts .= Cp::input_select_option(
                     $row->weblog_id.'_'.$frow->field_handle,
-                    NBS.'-'.NBS.$frow->field_name,
+                    $frow->field_name,
                     $sel);
             }
+
+            $typopts .= '</optgroup>';
         }
 
         $typopts .= Cp::input_select_footer();
         $typopts .= '</div>'.PHP_EOL;
 
+        // ------------------------------------
+        //  JavaScript
+        // ------------------------------------
 
-        $r  = '<table class="tableBorder">';
+        $js = <<<EOT
+    <script type="text/javascript">
+
+         $( document ).ready(function() {
+            $('input[name=settings\\\\[pulldown_populate\\\\]]').change(function(e) {
+                e.preventDefault();
+
+                var type = $('input[name=settings\\\\[pulldown_populate\\\\]]:checked').val();
+
+                console.log(type);
+
+                $('div[id^=pulldown_populate_]').css('display', 'none');
+
+                $('#pulldown_populate_'+type).css('display', 'block');
+
+            });
+
+            $('input[name=settings\\\\[pulldown_populate\\\\]][value={$populate_type}]').prop("checked",true);;
+            $('input[name=settings\\\\[pulldown_populate\\\\]]').trigger("change");
+        });
+
+    </script>
+EOT;
+
+
+        $r = $js;
+
+        // ------------------------------------
+        //  Table Containing Options
+        // ------------------------------------
+
+        $r .= '<table class="tableBorder">';
         $r .=
             '<tr>'.PHP_EOL.
                 Cp::td('tableHeading', '', '2').

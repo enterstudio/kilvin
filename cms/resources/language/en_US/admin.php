@@ -720,14 +720,14 @@ return [
 "max_revisions_note" =>
 "Versioning can use up a lot of database space so it is recommended that you limit the number of revisions.",
 
-"field_populate_manually" =>
-"Populate the menu manually",
+"Populate dropdown manually" =>
+"Populate dropdown manually",
 
-"field_populate_from_blog" =>
-"Populate the menu from another custom field",
+"Populate dropdown from weblog field" =>
+"Populate dropdown from weblog field",
 
 "select_weblog_for_field" =>
-"Select the field you wish to pre-populate from:",
+"Select the weblog and field you wish to populate from:",
 
 "field_val" =>
 "You must choose a field name from this menu, not a weblog name.",
@@ -1170,7 +1170,7 @@ return [
 "If you chose drop-down menu",
 
 "field_list_instructions" =>
-"Put each item on a single line",
+"Put each item on a single line. Use a colon to separate the form value from displayed value.",
 
 "edit_list" =>
 "Edit List",
