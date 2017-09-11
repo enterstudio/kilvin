@@ -85,9 +85,9 @@ class Dropdown extends FieldType
             'default',
             '<label>'.
                 Cp::input_radio(
-                    'settings[pulldown_populate]',
+                    'settings[pulldown_populate_type]',
                     'manual',
-                    ($populate_type == 'manual') ? 1 : 0,
+                    ($populate_type == 'manual') ? true : false,
                     ' class="js-pulldown-populate"'
                 ).
                 ' '.
@@ -98,9 +98,9 @@ class Dropdown extends FieldType
             'default',
             '<label>'.
                 Cp::input_radio(
-                    'settings[pulldown_populate]',
+                    'settings[pulldown_populate_type]',
                     'weblog',
-                    ($populate_type == 'weblog') ? 1 : 0,
+                    ($populate_type == 'weblog') ? true : false,
                     ' class="js-pulldown-populate"'
                 ).
                 ' '.
@@ -174,7 +174,7 @@ class Dropdown extends FieldType
                 $sel = ($weblog_id == $row->weblog_id AND $field_handle == $frow->field_handle) ? 1 : 0;
 
                 $typopts .= Cp::input_select_option(
-                    $row->weblog_id.'_'.$frow->field_handle,
+                    $row->weblog_id.':'.$frow->field_handle,
                     $frow->field_name,
                     $sel);
             }
@@ -193,10 +193,10 @@ class Dropdown extends FieldType
     <script type="text/javascript">
 
          $( document ).ready(function() {
-            $('input[name=settings\\\\[pulldown_populate\\\\]]').change(function(e) {
+            $('input[name=settings\\\\[pulldown_populate_type\\\\]]').change(function(e) {
                 e.preventDefault();
 
-                var type = $('input[name=settings\\\\[pulldown_populate\\\\]]:checked').val();
+                var type = $('input[name=settings\\\\[pulldown_populate_type\\\\]]:checked').val();
 
                 console.log(type);
 
@@ -206,8 +206,8 @@ class Dropdown extends FieldType
 
             });
 
-            $('input[name=settings\\\\[pulldown_populate\\\\]][value={$populate_type}]').prop("checked",true);;
-            $('input[name=settings\\\\[pulldown_populate\\\\]]').trigger("change");
+            $('input[name=settings\\\\[pulldown_populate_type\\\\]][value={$populate_type}]').prop("checked",true);;
+            $('input[name=settings\\\\[pulldown_populate_type\\\\]]').trigger("change");
         });
 
     </script>
@@ -248,7 +248,7 @@ EOT;
      */
     public function settingsValidationRules($incoming = [])
     {
-        $rules['settings.pulldown_populate'] = 'required|in:manual,weblog';
+        $rules['settings.pulldown_populate_type'] = 'required|in:manual,weblog';
         $rules['settings.pulldown_weblog_id'] = 'integer|exists:weblogs,id';
         $rules['settings.pulldown_list_items'] = 'required_if:pulldown_populate,manual';
         $rules['settings.pulldown_weblog_field'] = 'required_if:pulldown_populate,weblog';
